@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Celestial Chart — 西洋占星術鑑定</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;900&family=Cinzel:wght@400;600&family=Noto+Serif+JP:wght@300;400;600&family=JetBrains+Mono:wght@300;400&display=swap');
+:root{
+  --bg:#f5f0e8;--panel:#faf6ec;--border:#c8a060;--gold:#a07030;--text:#2a1a00;
+  --dim:#8a7050;--blue:#1a3a8a;--red:#8a1a1a;--green:#1a5a1a;--mid:#5a4020;
+  --dark:#0e0e28;--dtext:#d4d0e8;--ddim:#5a5878;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--dark);color:var(--dtext);font-family:'Noto Serif JP',serif;font-weight:300;min-height:100vh;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;background:var(--dark);}
+.h1{font-family:'Cinzel Decorative',serif;font-size:clamp(22px,5vw,44px);font-weight:900;background:linear-gradient(135deg,#c8a96e,#e8c88e,#9ba8cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:14px 0 10px;}
+.hsub{font-size:11px;letter-spacing:.3em;color:var(--ddim);margin-bottom:34px;}
+.sym{font-size:36px;filter:drop-shadow(0 0 10px #c8a96e);}
+.hline{width:1px;height:40px;background:linear-gradient(to bottom,transparent,#252560,transparent);margin:0 auto 34px;}
+
+/* FORM */
+.fc{background:#0e0e28;border:1px solid #1c1c45;border-radius:16px;padding:26px 22px;width:100%;max-width:450px;box-shadow:0 0 50px rgba(0,0,0,.6);position:relative;}
+.fc::before{content:'';position:absolute;top:-1px;left:25%;right:25%;height:1px;background:linear-gradient(90deg,transparent,#c8a96e,transparent);}
+.ftit{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.3em;color:#c8a96e;text-align:center;margin-bottom:18px;text-transform:uppercase;}
+.fr{margin-bottom:13px;position:relative;}
+.fr label{display:block;font-size:10px;color:#5a5878;letter-spacing:.1em;margin-bottom:4px;text-transform:uppercase;}
+.fr input,.fr select{width:100%;background:#06061a;border:1px solid #1c1c45;border-radius:7px;color:var(--dtext);font-family:'JetBrains Mono',monospace;font-size:13px;padding:8px 10px;outline:none;-webkit-appearance:none;transition:border-color .2s;}
+.fr input:focus,.fr select:focus{border-color:#6478c8;}
+.fr select option{background:#0e0e28;}
+.fcols{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ntbtn{display:block;width:100%;text-align:center;font-size:10px;color:#5a5878;margin-top:4px;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:'Noto Serif JP',serif;}
+.un{background:#06061a;border:1px solid #1c1c45;border-radius:6px;padding:8px 10px;margin-top:5px;font-size:11px;color:#9890b8;line-height:1.7;display:none;}
+.un.show{display:block;}
+.sbtn{width:100%;margin-top:16px;background:linear-gradient(135deg,#1a1a40,#252560);border:1px solid #c8a96e;border-radius:8px;padding:12px;color:#c8a96e;font-family:'Cinzel',serif;font-size:13px;letter-spacing:.2em;cursor:pointer;transition:all .3s;}
+.sbtn:hover{box-shadow:0 0 18px rgba(200,169,110,.2);}
+.sbtn:disabled{opacity:.4;cursor:not-allowed;}
+#csg{display:none;position:absolute;left:0;right:0;top:calc(100% - 1px);background:#0e0e28;border:1px solid #252560;border-radius:0 0 8px 8px;z-index:100;box-shadow:0 6px 18px rgba(0,0,0,.6);overflow:hidden;}
+.si{padding:8px 10px;cursor:pointer;border-bottom:1px solid #1c1c45;display:flex;justify-content:space-between;align-items:center;font-size:12px;transition:background .15s;}
+.si:last-child{border-bottom:none;}
+.si:hover,.si.ac{background:#12122f;}
+.sin{color:var(--dtext);}
+.sic{font-size:10px;color:#5a5878;font-family:'JetBrains Mono',monospace;}
+#gs{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:#5a5878;pointer-events:none;}
+
+/* RESULT */
+#rp{display:none;background:var(--dark);padding:24px 14px 60px;max-width:860px;margin:0 auto;}
+#rp.show{display:block;}
+.rh{text-align:center;padding:24px 0 18px;border-bottom:1px solid #1c1c45;margin-bottom:22px;}
+.rt{font-family:'Cinzel Decorative',serif;font-size:clamp(13px,3vw,20px);background:linear-gradient(135deg,#c8a96e,#e8c88e,#9ba8cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;}
+.rs{font-size:10px;color:#5a5878;letter-spacing:.1em;}
+.bkbtn{display:inline-flex;align-items:center;gap:5px;background:none;border:1px solid #1c1c45;border-radius:6px;padding:5px 12px;color:#5a5878;font-size:11px;cursor:pointer;font-family:'Noto Serif JP',serif;margin-bottom:18px;}
+.bkbtn:hover{border-color:#c8a96e;color:#c8a96e;}
+
+/* CHART LAYOUT */
+.cs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;align-items:start;}
+@media(max-width:560px){.cs{grid-template-columns:1fr;}}
+.cw{background:var(--panel);border:2px solid var(--border);border-radius:10px;padding:5px;display:flex;align-items:center;justify-content:center;}
+#nc{display:block;max-width:100%;height:auto;}
+
+/* PLANET TABLE */
+.ptw{background:#0e0e28;border:1px solid #1c1c45;border-radius:10px;padding:13px;}
+.ptt{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;color:#c8a96e;margin-bottom:9px;text-transform:uppercase;}
+.pr{display:flex;align-items:center;padding:5px 0;border-bottom:1px solid rgba(28,28,69,.5);font-size:11px;gap:6px;}
+.pr:last-child{border-bottom:none;}
+.ps{width:17px;text-align:center;font-size:13px;}
+.pn{color:#5a5878;width:44px;font-size:10px;}
+.pg{flex:1;color:var(--dtext);}
+.pd{font-family:'JetBrains Mono',monospace;font-size:10px;color:#9890b8;}
+.prt{font-size:8px;color:#c86888;}
+.ph{font-size:9px;font-family:'JetBrains Mono',monospace;color:#6478c8;background:rgba(100,120,200,.1);border:1px solid rgba(100,120,200,.2);border-radius:3px;padding:1px 4px;}
+
+/* ASPECTS */
+.as2{background:#0e0e28;border:1px solid #1c1c45;border-radius:10px;padding:14px;margin-bottom:16px;}
+.ast{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;color:#c8a96e;text-transform:uppercase;margin-bottom:10px;}
+.asg{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;}
+.ac2{display:flex;align-items:center;gap:5px;background:#06061a;border:1px solid #1c1c45;border-radius:5px;padding:5px 8px;font-size:10px;}
+.at{font-weight:600;font-size:11px;}
+.aconj{color:#c8a96e;}.atrin{color:#78b890;}.asext{color:#6478c8;}.asq{color:#c86888;}.aopp{color:#c05050;}
+.ab{color:#5a5878;}
+.ao{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9px;color:#5a5878;}
+
+/* READING */
+.rg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+@media(max-width:560px){.rg{grid-template-columns:1fr;}}
+.rc{background:#0e0e28;border:1px solid #1c1c45;border-radius:11px;padding:16px;position:relative;overflow:hidden;}
+.rc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.rcp::before{background:linear-gradient(90deg,#c8a96e,#e8c88e);}
+.rcd::before{background:linear-gradient(90deg,#6478c8,#8898e8);}
+.rcm::before{background:linear-gradient(90deg,#c86888,#e898b8);}
+.ri{font-size:20px;margin-bottom:6px;}
+.rl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:9px;}
+.rcp .rl{color:#c8a96e;}.rcd .rl{color:#6478c8;}.rcm .rl{color:#c86888;}
+.rtx{font-size:11px;line-height:1.95;color:#9890b8;}
+.ld{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80px;gap:8px;}
+.sp{width:20px;height:20px;border:2px solid #1c1c45;border-top-color:#c8a96e;border-radius:50%;animation:spin 1s linear infinite;}
+.ts{background:#0e0e28;border:1px solid #1c1c45;border-radius:11px;padding:16px;margin-bottom:24px;}
+.tst{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;color:#9ba8cc;text-transform:uppercase;margin-bottom:10px;}
+.tsr{font-size:11px;line-height:1.95;color:#9890b8;}
+.ub{background:#06061a;border:1px solid #c8a96e;border-radius:8px;padding:9px 13px;margin-bottom:14px;display:none;align-items:center;gap:8px;font-size:11px;}
+.ub.show{display:flex;}
+.ubt{color:#9890b8;}
+.ubl{margin-left:auto;font-size:10px;color:#c8a96e;cursor:pointer;text-decoration:underline;white-space:nowrap;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="hero" id="HP">
+  <div class="sym">✦</div>
+  <div class="h1">CELESTIAL CHART</div>
+  <div class="hsub">西洋占星術 AI 鑑定</div>
+  <div class="hline"></div>
+  <div class="fc">
+    <div class="ftit">☿ 生年月日・出生地を入力</div>
+    <div class="fr"><label>生年月日</label><input type="date" id="idate" value="1990-04-15"></div>
+    <div class="fr">
+      <label>出生時間</label>
+      <input type="time" id="itime" value="14:30">
+      <button class="ntbtn" id="ntbtn" onclick="toggleNT()">出生時間がわからない</button>
+      <div class="un" id="un">✅ 太陽・月・全惑星 ✅ アスペクト<br><span style="opacity:.6">※ ASC・MC・ハウスは時間が必要</span></div>
+    </div>
+    <div class="fr">
+      <label>タイムゾーン（UTC基準）</label>
+      <select id="itz">
+        <option value="9" selected>JST +9（日本・韓国）</option>
+        <option value="8">CST +8（中国・台湾・香港）</option>
+        <option value="7">ICT +7（タイ・ベトナム）</option>
+        <option value="5.5">IST +5:30（インド）</option>
+        <option value="4">GST +4（ドバイ）</option>
+        <option value="3">MSK +3（モスクワ）</option>
+        <option value="2">CEST +2（中欧夏時間）</option>
+        <option value="1">CET +1（中欧）</option>
+        <option value="0">UTC +0（ロンドン）</option>
+        <option value="-5">EST -5（ニューヨーク）</option>
+        <option value="-8">PST -8（ロサンゼルス）</option>
+        <option value="-9">AKST -9（アラスカ）</option>
+      </select>
+    </div>
+    <div class="fr" style="position:relative">
+      <label>出生地（都市名）</label>
+      <div style="position:relative">
+        <input type="text" id="icity" value="" placeholder="例: 東京 / 福岡 / New York" autocomplete="off"
+          oninput="ci(this.value)" onkeydown="ck(event)" onblur="cb()">
+        <div id="gs"></div>
+      </div>
+      <div id="csg"></div>
+    </div>
+    <div class="fcols">
+      <div class="fr"><label>緯度（自動入力）</label><input type="number" id="ilat" value="" placeholder="例: 33.5904" step="0.0001"></div>
+      <div class="fr"><label>経度（自動入力）</label><input type="number" id="ilng" value="" placeholder="例: 130.4017" step="0.0001"></div>
+    </div>
+    <button class="sbtn" id="sbtn" onclick="startReading()">✦ 星を読む ✦</button>
+  </div>
+</div>
+
+<section id="rp">
+  <div class="rh">
+    <button class="bkbtn" onclick="goBack()">← 戻る</button>
+    <div class="rt" id="rt">NATAL CHART</div>
+    <div class="rs" id="rs"></div>
+  </div>
+  <div class="ub" id="ub"><span>⏰</span><span class="ubt">出生時間不明。正午設定で計算。</span><span class="ubl" onclick="goBack()">時間を入力 →</span></div>
+  <div class="cs">
+    <div class="cw"><canvas id="nc" width="360" height="360"></canvas></div>
+    <div class="ptw"><div class="ptt">☿ 天体配置</div><div id="pl"></div></div>
+  </div>
+  <div class="as2"><div class="ast">✧ 主要アスペクト</div><div class="asg" id="ag"></div></div>
+  <div class="rg">
+    <div class="rc rcp"><div class="ri">☀️</div><div class="rl">性格</div><div class="rtx" id="rcp"><div class="ld"><div class="sp"></div><span style="font-size:10px;color:#5a5878">鑑定中…</span></div></div></div>
+    <div class="rc rcd"><div class="ri">♄</div><div class="rl">運命</div><div class="rtx" id="rcd"><div class="ld"><div class="sp" style="border-top-color:#6478c8"></div><span style="font-size:10px;color:#5a5878">鑑定中…</span></div></div></div>
+    <div class="rc rcm"><div class="ri">☽</div><div class="rl">使命</div><div class="rtx" id="rcm"><div class="ld"><div class="sp" style="border-top-color:#c86888"></div><span style="font-size:10px;color:#5a5878">鑑定中…</span></div></div></div>
+  </div>
+  <div class="ts"><div class="tst">◎ 現在のトランジット運勢</div><div class="tsr" id="tr"><div class="ld"><div class="sp" style="border-top-color:#9ba8cc"></div></div></div></div>
+</section>
+
+<script>
+// ========== CITY DB ==========
+const CDB=[
+  {n:'札幌',k:'sapporo',lat:43.0618,lng:141.3545},{n:'仙台',k:'sendai',lat:38.2688,lng:140.8721},
+  {n:'東京',k:'tokyo',lat:35.6895,lng:139.6917},{n:'横浜',k:'yokohama',lat:35.4437,lng:139.638},
+  {n:'さいたま',k:'saitama',lat:35.8617,lng:139.6455},{n:'千葉',k:'chiba',lat:35.6074,lng:140.1065},
+  {n:'名古屋',k:'nagoya',lat:35.1815,lng:136.9066},{n:'京都',k:'kyoto',lat:35.0116,lng:135.7681},
+  {n:'大阪',k:'osaka',lat:34.6937,lng:135.5023},{n:'神戸',k:'kobe',lat:34.6901,lng:135.1956},
+  {n:'広島',k:'hiroshima',lat:34.3853,lng:132.4553},{n:'北九州',k:'kitakyushu',lat:33.8834,lng:130.8751},
+  {n:'福岡',k:'fukuoka',lat:33.5904,lng:130.4017},{n:'熊本',k:'kumamoto',lat:32.7898,lng:130.7417},
+  {n:'長崎',k:'nagasaki',lat:32.7503,lng:129.8779},{n:'鹿児島',k:'kagoshima',lat:31.5966,lng:130.5571},
+  {n:'那覇',k:'naha okinawa',lat:26.2124,lng:127.6809},{n:'金沢',k:'kanazawa',lat:36.5944,lng:136.6256},
+  {n:'新潟',k:'niigata',lat:37.9162,lng:139.0364},{n:'静岡',k:'shizuoka',lat:34.9769,lng:138.3831},
+  {n:'ソウル',k:'seoul',lat:37.5665,lng:126.978},{n:'北京',k:'beijing',lat:39.9042,lng:116.4074},
+  {n:'上海',k:'shanghai',lat:31.2304,lng:121.4737},{n:'香港',k:'hong kong',lat:22.3193,lng:114.1694},
+  {n:'台北',k:'taipei',lat:25.033,lng:121.5654},{n:'バンコク',k:'bangkok',lat:13.7563,lng:100.5018},
+  {n:'シンガポール',k:'singapore',lat:1.3521,lng:103.8198},{n:'ジャカルタ',k:'jakarta',lat:-6.2088,lng:106.8456},
+  {n:'ムンバイ',k:'mumbai',lat:19.076,lng:72.8777},{n:'デリー',k:'delhi',lat:28.6139,lng:77.209},
+  {n:'ドバイ',k:'dubai',lat:25.2048,lng:55.2708},{n:'イスタンブール',k:'istanbul',lat:41.0082,lng:28.9784},
+  {n:'ロンドン',k:'london',lat:51.5074,lng:-0.1278},{n:'パリ',k:'paris',lat:48.8566,lng:2.3522},
+  {n:'ベルリン',k:'berlin',lat:52.52,lng:13.405},{n:'マドリード',k:'madrid',lat:40.4168,lng:-3.7038},
+  {n:'ローマ',k:'rome',lat:41.9028,lng:12.4964},{n:'モスクワ',k:'moscow',lat:55.7558,lng:37.6173},
+  {n:'ニューヨーク',k:'new york',lat:40.7128,lng:-74.006},{n:'ロサンゼルス',k:'los angeles',lat:34.0522,lng:-118.2437},
+  {n:'シカゴ',k:'chicago',lat:41.8781,lng:-87.6298},{n:'サンフランシスコ',k:'san francisco',lat:37.7749,lng:-122.4194},
+  {n:'トロント',k:'toronto',lat:43.6532,lng:-79.3832},{n:'シドニー',k:'sydney',lat:-33.8688,lng:151.2093},
+  {n:'カイロ',k:'cairo',lat:30.0444,lng:31.2357},
+];
+function srch(q){const lq=(q||'').toLowerCase().trim();if(!lq)return[];return CDB.filter(c=>(c.n+c.k).toLowerCase().includes(lq)).sort((a,b)=>(a.n.toLowerCase().startsWith(lq)?0:1)-(b.n.toLowerCase().startsWith(lq)?0:1)).slice(0,6);}
+function ci(v){const r=srch(v.trim());r.length?(showSg(r),document.getElementById('gs').textContent=''):(hideSg(),document.getElementById('gs').textContent=v.trim()?'❓':'');}
+function ck(e){const items=[...document.querySelectorAll('.si')],active=document.querySelector('.si.ac');
+  if(e.key==='ArrowDown'){e.preventDefault();const n=active?active.nextElementSibling:items[0];if(n){active?.classList.remove('ac');n.classList.add('ac');}}
+  else if(e.key==='ArrowUp'){e.preventDefault();const p=active?active.previousElementSibling:items[items.length-1];if(p){active?.classList.remove('ac');p.classList.add('ac');}}
+  else if(e.key==='Enter'){e.preventDefault();(active||document.querySelector('.si'))?.click();}
+  else if(e.key==='Escape')hideSg();}
+function cb(){setTimeout(()=>{const f=document.querySelector('.si');f?f.click():hideSg();},120);}
+function showSg(r){const b=document.getElementById('csg');b.innerHTML=r.map((c,i)=>'<div class="si'+(i===0?' ac':'')+'" data-lat="'+c.lat+'" data-lng="'+c.lng+'" data-name="'+c.n+'" onmousedown="selC(event,this)" ontouchstart="selC(event,this)"><span class="sin">'+c.n+'</span><span class="sic">'+c.lat.toFixed(2)+'°,'+c.lng.toFixed(2)+'°</span></div>').join('');b.style.display='block';}
+function selC(e,el){e.preventDefault();document.getElementById('ilat').value=parseFloat(el.dataset.lat).toFixed(4);document.getElementById('ilng').value=parseFloat(el.dataset.lng).toFixed(4);document.getElementById('icity').value=el.dataset.name;hideSg();document.getElementById('gs').textContent='✓';}
+function hideSg(){document.getElementById('csg').style.display='none';}
+document.addEventListener('click',e=>{if(!e.target.closest('#icity')&&!e.target.closest('#csg'))hideSg();});
+
+// ========== TIME TOGGLE ==========
+let BTK=true;
+function toggleNT(){BTK=!BTK;document.getElementById('un').classList.toggle('show',!BTK);const t=document.getElementById('itime');t.disabled=!BTK;t.style.opacity=BTK?'1':'0.4';document.getElementById('ntbtn').textContent=BTK?'出生時間がわからない':'出生時間を入力する';}
+
+// ========== MATH HELPERS ==========
+const PI=Math.PI;
+function r(d){return d*PI/180;}
+function d(rd){return rd*180/PI;}
+function N(x){return((x%360)+360)%360;}
+function JD(dt){return dt.getTime()/86400000+2440587.5;}
+
+// ========== SUN (Meeus Ch.25) ==========
+function sunLon(T){
+  const L0=N(280.46646+36000.76983*T+0.0003032*T*T);
+  const M=r(N(357.52911+35999.05029*T-0.0001537*T*T));
+  const C=(1.914602-0.004817*T-0.000014*T*T)*Math.sin(M)+(0.019993-0.000101*T)*Math.sin(2*M)+0.000289*Math.sin(3*M);
+  const sunTrue=L0+C;
+  const omega=r(N(125.04-1934.136*T));
+  return N(sunTrue-0.00569-0.00478*Math.sin(omega));
+}
+
+// ========== MOON (Meeus Ch.47) ==========
+function moonLon(T){
+  const Lp=N(218.3165+481267.8813*T-0.0013268*T*T+T*T*T/538841-T*T*T*T/65194000);
+  const D=r(N(297.8502+445267.1115*T-0.0016300*T*T+T*T*T/545868-T*T*T*T/113065000));
+  const M=r(N(357.5291+35999.0503*T-0.0001536*T*T+T*T*T/24490000));
+  const Mp=r(N(134.9634+477198.8676*T+0.0089970*T*T+T*T*T/69699-T*T*T*T/14712000));
+  const F=r(N(93.2721+483202.0175*T-0.0034029*T*T-T*T*T/3526000+T*T*T*T/863310000));
+  const E=1-0.002516*T-0.0000074*T*T;
+  const sigma=
+    6.2888*Math.sin(Mp)
+    +1.2740*Math.sin(2*D-Mp)
+    +0.6583*E*Math.sin(2*D)
+    +0.2136*Math.sin(2*Mp)
+    -0.1851*E*Math.sin(M)
+    -0.1143*Math.sin(2*F)
+    +0.0588*Math.sin(2*D-2*Mp)
+    +0.0572*E*Math.sin(2*D-M-Mp)
+    +0.0533*Math.sin(2*D+Mp)
+    +0.0458*E*Math.sin(2*D-M)
+    +0.0409*Math.sin(Mp-F)
+    -0.0347*E*Math.sin(M)
+    +0.0304*E*Math.sin(2*D+M-Mp)
+    +0.0154*Math.sin(2*Mp-2*F)
+    +0.0130*Math.sin(4*D-Mp)
+    -0.0122*Math.sin(2*D-Mp-2*F)
+    +0.0117*E*Math.sin(4*D-2*Mp)
+    -0.0111*Math.sin(2*D-2*Mp)
+    +0.0108*E*Math.sin(M+2*Mp-2*D)
+    -0.0107*Math.sin(2*D-M-2*F)
+    +0.0101*E*Math.sin(2*D+M);
+  return N(Lp+sigma);
+}
+
+// ========== PLANETS (Meeus Table 31.a, proper helio→geo) ==========
+function kepE(M,e){let E=M;for(let i=0;i<20;i++){const dE=(M-(E-e*Math.sin(E)))/(1-e*Math.cos(E));E+=dE;if(Math.abs(dE)<1e-12)break;}return E;}
+
+function helio(a,e,i_,Om,w,L0,n,T){
+  const L=r(N(L0+n*T));
+  const omegaBar=r(N(Om+w));
+  const M=N(d(L)-N(d(omegaBar)));
+  const Mrad=r(M);
+  const E=kepE(Mrad,e);
+  const nu=2*Math.atan2(Math.sqrt(1+e)*Math.sin(E/2),Math.sqrt(1-e)*Math.cos(E/2));
+  const rv=a*(1-e*Math.cos(E));
+  const Omr=r(N(Om)),wr=r(N(w)),ir=r(i_);
+  const cosOm=Math.cos(Omr),sinOm=Math.sin(Omr),cosw=Math.cos(wr),sinw=Math.sin(wr),cosI=Math.cos(ir),cosnu=Math.cos(nu),sinnu=Math.sin(nu);
+  const x=rv*(cosOm*(cosw*cosnu-sinw*sinnu)-sinOm*(sinw*cosnu+cosw*sinnu)*cosI);
+  const y=rv*(sinOm*(cosw*cosnu-sinw*sinnu)+cosOm*(sinw*cosnu+cosw*sinnu)*cosI);
+  const z=rv*(sinw*cosnu+cosw*sinnu)*Math.sin(ir);
+  return{x,y,z};
+}
+
+// Earth barycenter (Meeus)
+function earthHelio(T){
+  return helio(1.000001018,0.01670083,0,0,102.93005,100.46457,36000.76983,T);
+}
+
+function geo(a,e,i_,Om,obar,L0,n,T){
+  // obar = longitude of perihelion (= Om + w in Meeus notation)
+  // w = argument of perihelion = obar - Om
+  const w = N(obar - Om);
+  const p=helio(a,e,i_,Om,w,L0,n,T);
+  const e2=earthHelio(T);
+  const dx=p.x-e2.x,dy=p.y-e2.y;
+  return N(d(Math.atan2(dy,dx)));
+}
+
+// Planetary elements (J2000.0, Meeus Appendix II Table 31.a)
+// Args: a, e, i, Om (ascending node), obar (longitude of perihelion), L0 (mean lon), n (mean motion/century)
+function Mercury(T){return geo(0.38709927,0.20563593,7.00497902,48.33076593,77.45779628,252.25032350,149472.67411175,T);}
+function Venus(T){return geo(0.72333566,0.00677672,3.39467605,76.67984255,131.60246718,181.97909950,58517.81538729,T);}
+function Mars(T){
+  // Base heliocentric then geocentric
+  let lon=geo(1.52366231,0.09341233,1.84969142,49.71320984,336.04084002,355.43327460,19140.30268499,T);
+  // Add major perturbations from Jupiter (Meeus Ch.32)
+  const Mj=r(N(20.9+3034.906*T)); // Jupiter mean anomaly approx
+  const Mm=r(N(19.387+19140.302*T)); // Mars mean anomaly
+  lon=N(lon-0.01*(4.8*Math.sin(2*Mm-Mj)-4.2*Math.sin(Mm+Mj)));
+  return lon;
+}
+function Jupiter(T){return geo(5.20288700,0.04838624,1.30439695,100.47390909,14.72847983,34.39644051,3034.74612775,T);}
+function Saturn(T){return geo(9.53667594,0.05386179,2.48599187,113.66242448,92.59887831,49.95424423,1222.49514316,T);}
+function Uranus(T){return geo(19.18916464,0.04725744,0.77263783,74.01692503,170.95427630,313.23810451,428.48202785,T);}
+function Neptune(T){return geo(30.06992276,0.00859048,1.77004347,131.78422574,44.96476227,-55.12002969,218.45945325,T);}
+function Pluto(T){return N(238.958+144.96*T+3.86*Math.sin(r(N(238.96+144.96*T)))-5.1*Math.sin(r(N(148.09+109.38*T))));}
+
+function isRetro(fn,J){if(!fn)return false;const T1=(J-0.5-2451545)/36525,T2=(J+0.5-2451545)/36525;let dv=fn(T2)-fn(T1);if(dv>180)dv-=360;if(dv<-180)dv+=360;return dv<0;}
+
+// ========== SIGNS / PLANETS DATA ==========
+const SG=[
+  {name:'牡羊座',sym:'♈',el:'fire'},{name:'牡牛座',sym:'♉',el:'earth'},
+  {name:'双子座',sym:'♊',el:'air'},{name:'蟹座',sym:'♋',el:'water'},
+  {name:'獅子座',sym:'♌',el:'fire'},{name:'乙女座',sym:'♍',el:'earth'},
+  {name:'天秤座',sym:'♎',el:'air'},{name:'蠍座',sym:'♏',el:'water'},
+  {name:'射手座',sym:'♐',el:'fire'},{name:'山羊座',sym:'♑',el:'earth'},
+  {name:'水瓶座',sym:'♒',el:'air'},{name:'魚座',sym:'♓',el:'water'},
+];
+const ELC={fire:'#b03020',earth:'#306820',air:'#907810',water:'#204880'};
+const ELB={fire:'rgba(160,50,30,.13)',earth:'rgba(40,100,30,.11)',air:'rgba(130,110,10,.1)',water:'rgba(30,60,150,.15)'};
+const PL=[
+  {name:'Sun',sym:'☉',color:'#b87800',fn:T=>sunLon(T)},
+  {name:'Moon',sym:'☽',color:'#6060a0',fn:T=>moonLon(T)},
+  {name:'Mercury',sym:'☿',color:'#3070a0',fn:Mercury},
+  {name:'Venus',sym:'♀',color:'#9050a0',fn:Venus},
+  {name:'Mars',sym:'♂',color:'#a02020',fn:Mars},
+  {name:'Jupiter',sym:'♃',color:'#806020',fn:Jupiter},
+  {name:'Saturn',sym:'♄',color:'#607040',fn:Saturn},
+  {name:'Uranus',sym:'♅',color:'#208090',fn:Uranus},
+  {name:'Neptune',sym:'♆',color:'#2040a0',fn:Neptune},
+  {name:'Pluto',sym:'♇',color:'#603080',fn:Pluto},
+];
+const PJ={Sun:'太陽',Moon:'月',Mercury:'水星',Venus:'金星',Mars:'火星',Jupiter:'木星',Saturn:'土星',Uranus:'天王星',Neptune:'海王星',Pluto:'冥王星'};
+const ASPD=[
+  {name:'コンジャンクション',sym:'☌',angle:0,orb:8,type:'conj'},
+  {name:'セクスタイル',sym:'＊',angle:60,orb:4,type:'sext'},
+  {name:'スクエア',sym:'□',angle:90,orb:7,type:'square'},
+  {name:'トライン',sym:'△',angle:120,orb:8,type:'trine'},
+  {name:'オポジション',sym:'☍',angle:180,orb:8,type:'opp'},
+];
+
+// ========== ASC / MC / HOUSES ==========
+function gst(J){const T=(J-2451545)/36525;return N(280.46061837+360.98564736629*(J-2451545)+0.000387933*T*T);}
+function calcAsc(lst,lat,eps){
+  // Meeus Ch.14: tan(ASC) = -cos(RAMC) / (sin(RAMC)*cos(eps) + tan(lat)*sin(eps))
+  // atan2 gives DSC; add 180° to get ASC
+  const L=r(lst),latR=r(lat),epsR=r(eps);
+  const asc=d(Math.atan2(-Math.cos(L),Math.sin(L)*Math.cos(epsR)+Math.tan(latR)*Math.sin(epsR)));
+  return N(asc+180);
+}
+function calcMC(lst,eps){
+  const L=r(lst),epsR=r(eps);
+  let mc=d(Math.atan2(Math.sin(L),Math.cos(L)*Math.cos(epsR)));
+  return N(mc);
+}
+function eps(T){return 23.4392911-0.013004167*T-0.000000164*T*T+0.000000504*T*T*T;}
+
+// Placidus house cusps (equal-division approximation per quadrant)
+function placidus(asc,mc,lat,eps_val){
+  // The 4 angular cusps
+  const ic=N(mc+180), dsc=N(asc+180);
+  const cusps=new Array(12);
+  cusps[0]=asc; cusps[3]=ic; cusps[6]=dsc; cusps[9]=mc;
+
+  // H1→H4 (ASC to IC, zodiac direction = increasing longitude)
+  const h1h4=N(ic-asc);
+  cusps[1]=N(asc+h1h4/3);
+  cusps[2]=N(asc+h1h4*2/3);
+
+  // H4→H7 (IC to DSC)
+  const h4h7=N(dsc-ic);
+  cusps[4]=N(ic+h4h7/3);
+  cusps[5]=N(ic+h4h7*2/3);
+
+  // H7→H10 (DSC to MC)
+  const h7h10=N(mc-dsc);
+  cusps[7]=N(dsc+h7h10/3);
+  cusps[8]=N(dsc+h7h10*2/3);
+
+  // H10→H1 (MC to ASC)
+  const h10h1=N(asc-mc);
+  cusps[10]=N(mc+h10h1/3);
+  cusps[11]=N(mc+h10h1*2/3);
+
+  return cusps;
+}
+
+function getHouse(lon,cusps){
+  for(let i=0;i<12;i++){
+    const c1=cusps[i],c2=cusps[(i+1)%12];
+    const span=N(c2-c1);
+    const dist=N(lon-c1);
+    if(dist>=0&&dist<span)return i+1;
+  }
+  return 1;
+}
+
+function calcAspects(planets){
+  const list=[];
+  for(let i=0;i<planets.length;i++)for(let j=i+1;j<planets.length;j++){
+    let diff=Math.abs(planets[i].lon-planets[j].lon);
+    if(diff>180)diff=360-diff;
+    for(const a of ASPD){const orb=Math.abs(diff-a.angle);if(orb<=a.orb)list.push({p1:planets[i],p2:planets[j],asp:a,orb:orb.toFixed(1)});}
+  }
+  return list.sort((a,b)=>parseFloat(a.orb)-parseFloat(b.orb)).slice(0,16);
+}
+
+function calcChart(dateStr,timeStr,lat,lng,btk,tzOffset){
+  // Convert local birth time to UTC using explicit timezone offset
+  // e.g. JST 16:10 with tzOffset=9 → UTC 07:10
+  let dt;
+  if(btk){
+    const [y,mo,d]=dateStr.split('-').map(Number);
+    const [h,mn]=(timeStr||'12:00').split(':').map(Number);
+    // tzOffset in hours (e.g. 9 for JST)
+    const utcH=h-tzOffset, utcMn=mn-(tzOffset%1)*60;
+    dt=new Date(Date.UTC(y,mo-1,d,utcH,utcMn,0));
+  } else {
+    const [y,mo,d]=dateStr.split('-').map(Number);
+    dt=new Date(Date.UTC(y,mo-1,d,3,0,0)); // noon JST ≈ 03:00 UTC
+  }
+  const J=JD(dt),T=(J-2451545)/36525;
+  const planets=PL.map(p=>{
+    const lon=p.fn(T),sIdx=Math.floor(lon/30),deg=lon%30;
+    const retro=isRetro(p.fn,J);
+    return{...p,lon,sIdx,deg,sign:SG[sIdx],retrograde:retro};
+  });
+  let asc=null,mc=null,cusps=null;
+  if(btk){
+    const epsVal=eps(T);
+    const lng_local=lng; // East positive
+    // Local Sidereal Time
+    const gstDeg=gst(J);
+    const lst=N(gstDeg+lng_local);
+    const ascLon=calcAsc(lst,lat,epsVal);
+    const mcLon=calcMC(lst,epsVal);
+    asc={lon:ascLon,sIdx:Math.floor(ascLon/30),deg:ascLon%30,sign:SG[Math.floor(ascLon/30)]};
+    mc={lon:mcLon,sIdx:Math.floor(mcLon/30),deg:mcLon%30,sign:SG[Math.floor(mcLon/30)]};
+    cusps=placidus(ascLon,mcLon,lat,epsVal);
+    planets.forEach(p=>p.house=getHouse(p.lon,cusps));
+  }
+  return{planets,asc,mc,cusps,aspects:calcAspects(planets),T,J,btk};
+}
+
+// ========== DRAW CHART ==========
+function drawChart(chart){
+  const cv=document.getElementById('nc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,cx=W/2,cy=H/2;
+  ctx.clearRect(0,0,W,H);
+  const Ro=W/2-4,Rso=Ro-16,Rsi=Ro-40,Rhi=Ro-54,Rasp=Ro-90,Rplt=Ro-72;
+
+  // 背景（クリーム白）
+  ctx.beginPath();ctx.arc(cx,cy,Ro,0,2*PI);
+  ctx.fillStyle='#faf6ec';ctx.fill();
+  ctx.strokeStyle='#b08040';ctx.lineWidth=2;ctx.stroke();
+
+  // ASC基準の変換
+  // ASCが左(9時=π)、MCが上(12時=-π/2)、反時計回り
+  const aL=chart.asc?chart.asc.lon:0;
+  function toA(lon){return r(N(-(lon-aL)+180));}
+
+  // 度数目盛り
+  for(let deg=0;deg<360;deg++){
+    const a=toA(deg),maj=deg%10===0,mid=deg%5===0,len=maj?6:mid?3.5:2;
+    ctx.beginPath();ctx.moveTo(cx+(Ro-2)*Math.cos(a),cy+(Ro-2)*Math.sin(a));
+    ctx.lineTo(cx+(Ro-2-len)*Math.cos(a),cy+(Ro-2-len)*Math.sin(a));
+    ctx.strokeStyle=maj?'#906030':'#c8a060';ctx.lineWidth=maj?0.7:0.3;ctx.stroke();
+  }
+
+  // サインリング
+  ctx.beginPath();ctx.arc(cx,cy,Rso,0,2*PI);ctx.strokeStyle='#b08040';ctx.lineWidth=1;ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,Rsi,0,2*PI);ctx.strokeStyle='#b08040';ctx.lineWidth=1;ctx.stroke();
+  for(let i=0;i<12;i++){
+    const a1=toA(i*30),a2=toA((i+1)*30),s=SG[i];
+    ctx.beginPath();ctx.arc(cx,cy,Rso,a1,a2,true);ctx.arc(cx,cy,Rsi,a2,a1);ctx.closePath();
+    ctx.fillStyle=ELB[s.el];ctx.fill();
+    ctx.beginPath();ctx.moveTo(cx+Rsi*Math.cos(a1),cy+Rsi*Math.sin(a1));ctx.lineTo(cx+Rso*Math.cos(a1),cy+Rso*Math.sin(a1));
+    ctx.strokeStyle='#b08040';ctx.lineWidth=0.7;ctx.stroke();
+    const mA=toA(i*30+15),sR=(Rsi+Rso)/2;
+    ctx.font='bold 12px serif';ctx.fillStyle=ELC[s.el];ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(s.sym,cx+sR*Math.cos(mA),cy+sR*Math.sin(mA));
+  }
+
+  // ハウスリング
+  ctx.beginPath();ctx.arc(cx,cy,Rhi,0,2*PI);ctx.strokeStyle='#c8a060';ctx.lineWidth=0.5;ctx.stroke();
+
+  // ハウスライン
+  const cps=chart.cusps||(chart.asc?Array.from({length:12},(_,i)=>N(aL+i*30)):Array.from({length:12},(_,i)=>i*30));
+  cps.forEach((lon,i)=>{
+    const a=toA(lon),ang=[0,3,6,9].includes(i);
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Rhi*Math.cos(a),cy+Rhi*Math.sin(a));
+    ctx.strokeStyle=ang?'#705010':'#c8a060';ctx.lineWidth=ang?1.1:0.4;ctx.setLineDash(ang?[]:[2,3]);ctx.stroke();ctx.setLineDash([]);
+    if(ang){ctx.beginPath();ctx.moveTo(cx+Rhi*Math.cos(a),cy+Rhi*Math.sin(a));ctx.lineTo(cx+Rsi*Math.cos(a),cy+Rsi*Math.sin(a));ctx.strokeStyle='#705010';ctx.lineWidth=1;ctx.stroke();}
+    // ハウス番号
+    const next=cps[(i+1)%12];const span=N(next-lon);
+    const midA=toA(lon+span/2);
+    ctx.font='bold 8px serif';ctx.fillStyle='#705020';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(i+1,cx+(Rasp*0.5)*Math.cos(midA),cy+(Rasp*0.5)*Math.sin(midA));
+    // カスプ度数
+    const cR=Rhi+5,sIdx2=Math.floor(lon/30),deg2=(lon%30).toFixed(0);
+    ctx.font='5.5px monospace';ctx.fillStyle='#907040';ctx.fillText(deg2+'°',cx+cR*Math.cos(a),cy+cR*Math.sin(a));
+  });
+
+  // ASC/DSC/MC/IC ラベル
+  if(chart.asc){
+    [{lon:chart.asc.lon,lbl:'ASC',c:'#6a0000'},{lon:N(chart.asc.lon+180),lbl:'DSC',c:'#6a0000'},
+     {lon:chart.mc.lon,lbl:'MC',c:'#00006a'},{lon:N(chart.mc.lon+180),lbl:'IC',c:'#00006a'}].forEach(({lon,lbl,c})=>{
+      const a=toA(lon);ctx.font='bold 7px sans-serif';ctx.fillStyle=c;ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(lbl,cx+(Ro+2)*Math.cos(a),cy+(Ro+2)*Math.sin(a));
+    });
+  }
+
+  // アスペクト線
+  const AC={conj:'rgba(50,50,180,.65)',trine:'rgba(0,130,170,.7)',sext:'rgba(0,130,170,.45)',square:'rgba(170,20,20,.65)',opp:'rgba(170,20,20,.45)'};
+  const AD={conj:[],trine:[],sext:[4,3],square:[],opp:[5,3]};
+  chart.aspects.slice(0,14).forEach(asp=>{
+    const a1=toA(asp.p1.lon),a2=toA(asp.p2.lon);
+    ctx.beginPath();ctx.moveTo(cx+Rasp*Math.cos(a1),cy+Rasp*Math.sin(a1));ctx.lineTo(cx+Rasp*Math.cos(a2),cy+Rasp*Math.sin(a2));
+    ctx.strokeStyle=AC[asp.asp.type]||'rgba(80,80,180,.4)';ctx.lineWidth=0.85;ctx.setLineDash(AD[asp.asp.type]||[]);ctx.stroke();ctx.setLineDash([]);
+  });
+  ctx.beginPath();ctx.arc(cx,cy,Rasp,0,2*PI);ctx.strokeStyle='#d4b060';ctx.lineWidth=0.4;ctx.stroke();
+
+  // 天体（重なり補正）
+  const placed=[];
+  chart.planets.forEach(p=>{
+    let rv=Rplt;const a=toA(p.lon);
+    for(const q of placed){let da=Math.abs(p.lon-q)%360;if(da>180)da=360-da;if(da<7){rv-=14;break;}}
+    placed.push(p.lon);
+    const x=cx+rv*Math.cos(a),y=cy+rv*Math.sin(a);
+    ctx.beginPath();ctx.arc(x,y,8.5,0,2*PI);ctx.fillStyle='rgba(250,246,236,.92)';ctx.fill();ctx.strokeStyle=p.color;ctx.lineWidth=0.8;ctx.stroke();
+    ctx.font='bold 12px serif';ctx.fillStyle=p.color;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(p.sym,x,y);
+    const lr=rv+16;ctx.font='5.5px monospace';ctx.fillStyle='#806040';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(p.deg.toFixed(0)+'°',cx+lr*Math.cos(a),cy+lr*Math.sin(a));
+    if(p.retrograde){ctx.font='6px serif';ctx.fillStyle='#901050';ctx.fillText('℞',x+9,y-8);}
+  });
+  ctx.beginPath();ctx.arc(cx,cy,2.5,0,2*PI);ctx.fillStyle='#a08040';ctx.fill();
+}
+
+// ========== RENDER ==========
+function renderPL(chart){
+  document.getElementById('pl').innerHTML=chart.planets.map(p=>
+    '<div class="pr"><span class="ps" style="color:'+p.color+'">'+p.sym+'</span><span class="pn">'+PJ[p.name]+'</span><span class="pg">'+p.sign.name+'</span><span class="pd">'+p.deg.toFixed(1)+'°</span>'+(p.retrograde?'<span class="prt">℞</span>':'')+(chart.cusps&&p.house?'<span class="ph">'+p.house+'H</span>':'')+'</div>'
+  ).join('');
+}
+function renderAS(chart){
+  const tc={conj:'aconj',trine:'atrin',sext:'asext',square:'asq',opp:'aopp'};
+  document.getElementById('ag').innerHTML=chart.aspects.map(a=>'<div class="ac2"><span class="at '+tc[a.asp.type]+'">'+a.asp.sym+'</span><span class="ab">'+PJ[a.p1.name]+'×'+PJ[a.p2.name]+'</span><span class="ao">'+a.orb+'°</span></div>').join('');
+}
+
+// ========== AI READING ==========
+function makeSummary(chart,city){
+  const g=n=>chart.planets.find(p=>p.name===n);
+  const sun=g('Sun'),moon=g('Moon'),merc=g('Mercury'),ven=g('Venus'),
+        mars=g('Mars'),jup=g('Jupiter'),sat=g('Saturn'),ura=g('Uranus'),nep=g('Neptune'),plu=g('Pluto');
+  const h=p=>(chart.btk&&p.house)?p.house+'H':'';
+  const rv=p=>p.retrograde?'℞':'';
+  const fmt=p=>p.sign.name+' '+p.deg.toFixed(1)+'°'+(h(p)?' '+h(p):'')+rv(p);
+  // アスペクト詳細：サイン・ハウス付き
+  const aspDetail=chart.aspects.slice(0,12).map(a=>{
+    const h1=h(a.p1),h2=h(a.p2);
+    return PJ[a.p1.name]+'('+a.p1.sign.name+(h1?' '+h1:'')+') '+a.asp.name+' '+PJ[a.p2.name]+'('+a.p2.sign.name+(h2?' '+h2:'')+') orb'+a.orb+'°';
+  }).join('\n');
+  return '出生地:'+city+'\n\n'
+    +'■天体配置（サイン 度数 ハウス）\n'
+    +'太陽:'+fmt(sun)+'\n月:'+fmt(moon)+'\n水星:'+fmt(merc)+'\n金星:'+fmt(ven)+'\n火星:'+fmt(mars)+'\n'
+    +'木星:'+fmt(jup)+'\n土星:'+fmt(sat)+'\n天王星:'+fmt(ura)+'\n海王星:'+fmt(nep)+'\n冥王星:'+fmt(plu)+'\n'
+    +(chart.asc?'ASC:'+chart.asc.sign.name+' '+chart.asc.deg.toFixed(1)+'°\nMC:'+chart.mc.sign.name+' '+chart.mc.deg.toFixed(1)+'°\n':'')
+    +'\n■アスペクト一覧（サイン・ハウス付き）\n'+aspDetail;
+}
+
+
+async function generateReadings(chart,city){
+  const sum=makeSummary(chart,city);
+  const tn=chart.btk?'':'※出生時間不明のため、ASC・ハウスへの言及は控えること。';
+
+  const prompt=
+    'あなたは30,000人以上を鑑定した西洋占星術師です。'+tn+'\n'
+   +'以下のホロスコープを読み解き、4項目を日本語で鑑定してください。\n'
+   +'\n【鑑定の書き方ルール】\n'
+   +'① 各項目400〜500文字\n'
+   +'② 専門用語（トライン・スクエア・オポジション・エレメント・モダリティ等）は使わない\n'
+   +'   → 代わりに日常語で表現する（例：トライン→「自然に流れる才能の流れ」、スクエア→「心の中の綱引き」）\n'
+   +'③ 天体配置を「星座×ハウス×星どうしの角度関係」の三重の意味で解釈する\n'
+   +'   例：太陽蟹座8ハウスに冥王星との緊張した角度がある場合→\n'
+   +'   「蟹座の深い感受性が、人生の大きな転換点や共有の場（8ハウス）で発揮される。\n'
+   +'   そこに冥王星との緊張した関係が加わることで、表面は穏やかでも内側では\n'
+   +'   激しい感情の渦を体験しやすく、それを乗り越えるたびに深みが増していく」\n'
+   +'④ 各星どうしの角度関係が具体的にどんな性格・才能・葛藤・人間関係パターンを生むかを書く\n'
+   +'   （「○○と○○が近い位置にあるので〜」「○○と○○が正反対の位置にあるので〜」など日常語で）\n'
+   +'⑤ 「〜かもしれません」「〜の傾向があります」など断定せず温かく\n'
+   +'⑥ 占星術を知らない人が読んでも、自分のことだと感じられる具体的な言葉で\n'
+   +'\n'+sum+'\n\n'
+   +'===性格===\n'
+   +'太陽・月・水星・金星・火星・ASCをサイン×ハウス×アスペクトで統合した人物像。\n'
+   +'各アスペクトがどんな具体的性格・才能・内的葛藤を生み出しているかを必ず書く。\n\n'
+   +'===運命===\n'
+   +'土星・冥王星・天王星をサイン×ハウス×アスペクトで読む人生テーマと試練。\n'
+   +'どんな場面でその試練が現れ、乗り越えることでどう変容するかを具体的に。\n\n'
+   +'===使命===\n'
+   +'木星・MC・ノード軸をサイン×ハウス×アスペクトで読む使命と才能の方向性。\n'
+   +'どんな仕事・役割・貢献の仕方でこの人が最も輝くかを具体的に。\n\n'
+   +'===現在の運勢===\n'
+   +'今日'+new Date().toLocaleDateString('ja-JP')+'時点のトランジット。\n'
+   +'現在の木星・土星・天王星がネイタルのどの天体・ハウスに触れているか、\n'
+   +'それが今どんな具体的な変化・チャンス・試練をもたらしているかを書く。';
+
+  function ext(text,key){
+    const re=new RegExp('==='+key+'===\\s*([\\s\\S]*?)(?====|$)');
+    const m=text.match(re);
+    return m?m[1].trim():'';
+  }
+  function set(id,text){
+    document.getElementById(id).innerHTML=text
+      ?'<p>'+text.replace(/\n/g,'<br>')+'</p>'
+      :'<p style="color:#c86888;font-size:11px">取得できませんでした</p>';
+  }
+
+  try{
+    // APIキーをsessionStorageから取得（なければ入力を求める）
+    var apiKey=sessionStorage.getItem('cc_api_key');
+    if(!apiKey){
+      apiKey=window.prompt('Anthropic APIキーを入力してください\n（sk-ant-...で始まるキー）\n\n※キーはこのブラウザのみに一時保存されます。外部サーバーには送られません。');
+      if(!apiKey){throw new Error('APIキーが入力されませんでした');}
+      sessionStorage.setItem('cc_api_key',apiKey.trim());
+    }
+    res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey.trim(),
+        'anthropic-version':'2023-06-01'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:4000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    if(res.status===401){
+      sessionStorage.removeItem('cc_api_key');
+      throw new Error('APIキーが無効です。再度「星を読む」を押して正しいキーを入力してください');
+    }
+    const data=await res.json();
+    const raw=data?.content?.[0]?.text||'';
+    if(!raw)throw new Error('empty');
+    set('rcp',ext(raw,'性格'));
+    set('rcd',ext(raw,'運命'));
+    set('rcm',ext(raw,'使命'));
+    set('tr',ext(raw,'現在の運勢'));
+  }catch(err){
+    console.error('API:',err);
+    // ── フォールバック：専門用語なし・誰にでも伝わる言葉で ──
+    const g=n=>chart.planets.find(p=>p.name===n);
+    const sun=g('Sun'),moon=g('Moon'),merc=g('Mercury'),ven=g('Venus'),
+          mars=g('Mars'),jup=g('Jupiter'),sat=g('Saturn'),plu=g('Pluto');
+    const asc=chart.asc,mc_=chart.mc;
+
+    // ハウスをわかりやすい言葉で
+    const HWORD={
+      1:'「自分自身・見た目・新しいスタート」',
+      2:'「お金・もの・自分が大切にしているもの」',
+      3:'「話すこと・学ぶこと・身近な人間関係」',
+      4:'「家族・ふるさと・心の奥にある安らぎ」',
+      5:'「好きなこと・恋愛・自由に楽しむこと」',
+      6:'「毎日の仕事・体のこと・誰かのためにすること」',
+      7:'「パートナー・大切な人・一対一の関係」',
+      8:'「人生の大きな転換点・深いつながり・隠れた力」',
+      9:'「旅・学び・人生の意味を探すこと」',
+      10:'「仕事での夢・社会での役割・目指す姿」',
+      11:'「友だち・仲間・未来への希望」',
+      12:'「見えない部分・ひとりで向き合うこと・魂の深み」'
+    };
+
+    // アスペクトを日常語で説明
+    function aspTalk(planetName){
+      const asps=chart.aspects.filter(a=>a.p1.name===planetName||a.p2.name===planetName).slice(0,2);
+      if(!asps.length)return '';
+      return asps.map(a=>{
+        const other=a.p1.name===planetName?a.p2:a.p1;
+        const oName=PJ[other.name];
+        const oSign=other.sign.name;
+        const oHW=other.house?HWORD[other.house]:'';
+        const talk={
+          conj: oSign+'の'+oName+oHW+'と、まるで双子のように性質がひとつに溶け合っています。切っても切れないほど深く結びついた組み合わせで、お互いの力がいっしょに働きます',
+          trine: oSign+'の'+oName+oHW+'と、自然にうまくいく関係にあります。まるで川が海へと流れるように、このふたつの力は邪魔されることなくスムーズにつながっています。意識しなくても発揮できる、生まれついての才能です',
+          sext:  oSign+'の'+oName+oHW+'と、上手に助け合える関係にあります。少し意識して動くだけで、ふたつの力がかけ算のように大きくなります',
+          square:oSign+'の'+oName+oHW+'と、ときにぶつかり合う関係にあります。「こうしたい」と「ああしたい」が心の中で綱引きをするような感覚があるかもしれません。でも、この緊張こそがあなたを強くします。この葛藤を乗り越えた先に、大きな成長があります',
+          opp:   oSign+'の'+oName+oHW+'と、正反対の位置にあります。「両方とも大事なのに、どっちかを選ばなければならない」と感じることがあるかもしれません。あるいは、自分とは正反対のタイプの人に引き寄せられることも。このふたつのバランスをとることが、あなたの人生の大きなテーマのひとつです'
+        };
+        return talk[a.asp.type]||oSign+'の'+oName+'とつながりがあります';
+      }).join('。さらに、');
+    }
+
+    // 太陽サインの一般向け説明
+    const sunWord={
+      fire:'エネルギーにあふれ、自分を表に出すことで生き生きとする',
+      earth:'じっくりと、ひとつひとつ確実に積み上げていくことが得意',
+      air:'人と話したり、知識を広げたりすることに喜びを感じる',
+      water:'人の気持ちに敏感で、その場の空気をすぐに読み取れる'
+    }[sun.sign.el];
+
+    // 月サインの一般向け説明
+    const moonWord={
+      fire:'気持ちが動くとすぐ行動に出る、素直で情熱的な心',
+      earth:'感情をじっくり噛みしめてから動く、安定を大切にする心',
+      air:'気持ちを言葉にして整理することで楽になる、考える心',
+      water:'周りの感情をそのまま受け取ってしまうほど、繊細で深い心'
+    }[moon.sign.el];
+
+    const sunH=sun.house?sun.house+'ハウス（'+HWORD[sun.house].replace(/「|」/g,'')+'）の分野':'';
+    const moonH=moon.house?moon.house+'ハウス（'+HWORD[moon.house].replace(/「|」/g,'')+'）の分野':'';
+    const mercH=merc.house?merc.house+'ハウスの分野':'';
+    const venH=ven.house?ven.house+'ハウスの分野':'';
+    const marsH=mars.house?mars.house+'ハウスの分野':'';
+
+    const sunAsp=aspTalk('Sun');
+    const moonAsp=aspTalk('Moon');
+    const mercAsp=aspTalk('Mercury');
+    const venAsp=aspTalk('Venus');
+    const marsAsp=aspTalk('Mars');
+
+    const ascWord=asc?{'fire':'エネルギッシュで行動的な人','earth':'落ち着いていて信頼感のある人','air':'明るくて話しやすい人','water':'ミステリアスで優しそうな人'}[asc.sign.el]:'';
+
+    const p1=
+      'あなたの太陽は'+sun.sign.name+'、'+sunH+'にあります。'+sunWord+'タイプです。'
+     +(sunAsp?'\n太陽は、'+sunAsp+'。':'')
+     +'\n\n心の内側を見ると、月は'+moon.sign.name+'、'+moonH+'にあります。'+moonWord+'を持っています。'
+     +(moonAsp?'\n月は、'+moonAsp+'。':'')
+     +'\n\n頭の使い方・話し方は水星'+merc.sign.name+'（'+mercH+'）が教えてくれます。'
+     +(mercAsp?'水星は、'+mercAsp+'。':'')
+     +'愛情の伝え方や「美しいな」と感じるセンスは金星'+ven.sign.name+'（'+venH+'）が表しています。'
+     +(venAsp?'金星は、'+venAsp+'。':'')
+     +'やる気や行動力のスタイルは火星'+mars.sign.name+'（'+marsH+'）に出ています。'
+     +(marsAsp?'火星は、'+marsAsp+'。':'')
+     +(asc?'\n\nまた、あなたは第一印象として「'+ascWord+'」と見られやすい傾向があります。これは上昇星座（'+asc.sign.name+'）によるものです。':'');
+
+    // 運命
+    const satH=sat.house?sat.house+'ハウス（'+HWORD[sat.house].replace(/「|」/g,'')+'）の分野':'';
+    const satWord={
+      fire:'「やりたいことをやる」「自分らしくいる」という部分で、思うようにいかないと感じることが多いかもしれません。でもその壁を乗り越えるたびに、本当の自信が育ちます',
+      earth:'お金・仕事・毎日の生活といった現実的な部分で、コツコツと努力を求められます。「すぐに報われない」と感じることもありますが、時間をかけて築いたものは絶対に崩れません',
+      air:'「うまく伝わらない」「気持ちが届かない」と感じる場面があるかもしれません。でも、その経験が言葉の力を磨き、やがて誰よりも深いコミュニケーションができるようになります',
+      water:'家族のこと、感情のこと、心の奥にある部分で向き合わなければならないテーマがあります。それはときに重く感じますが、その経験がほかの誰にもできない深い人間理解を育てます'
+    }[sat.sign.el];
+    const satAsp=aspTalk('Saturn');
+    const pluAsp=aspTalk('Pluto');
+    const hardAsps=chart.aspects.filter(a=>['square','opp'].includes(a.asp.type)).slice(0,2);
+    let hardDesc='';
+    if(hardAsps.length){
+      hardDesc='\nまた、星の配置を見ると、'
+        +hardAsps.map(a=>PJ[a.p1.name]+'（'+a.p1.sign.name+'）と'+PJ[a.p2.name]+'（'+a.p2.sign.name+'）').join('、')
+        +'のあいだに「葛藤を生みやすい角度」があります。これは「心のなかの引っ張り合い」として現れることが多いですが、その緊張を乗り越えるたびに、あなたはひとまわり大きくなっています。';
+    }
+    const p2=
+      '土星は'+sat.sign.name+'、'+satH+'にあります。'+satWord+'。'
+     +(satAsp?'\n土星は、'+satAsp+'。':'')
+     +hardDesc
+     +'\n\n冥王星は'+plu.sign.name+'にあります。これはあなただけでなく、同じ時代に生まれた人々が共通して持つ「時代のテーマ」を表しています。'
+     +(pluAsp?'冥王星は、'+pluAsp+'。人生の大きな転換点で、根っこから変わるような経験をすることがあるかもしれません。':'人生の大きな節目で、根っこから変わるような経験をすることがあるかもしれません。')
+     +'\nそれは怖いことではなく、より本物の自分に近づくための脱皮のようなものです。乗り越えた先には、以前の自分では想像もできなかった力と深みが待っています。';
+
+    // 使命
+    const jupH=jup.house?jup.house+'ハウス（'+HWORD[jup.house].replace(/「|」/g,'')+'）の分野':'';
+    const jupWord={
+      fire:'自分の情熱や個性を思いっきり表現するところに、幸運と才能の花が咲きやすい',
+      earth:'地に足のついた努力を続けるところに、豊かさと信頼が集まってくる',
+      air:'人と話したり、知識を共有したりするところに、面白い縁とチャンスが生まれやすい',
+      water:'人の気持ちに寄り添い、心のケアをするところに、深いやりがいと才能がある'
+    }[jup.sign.el];
+    const jupAsp=aspTalk('Jupiter');
+    const softAsps=chart.aspects.filter(a=>['trine','sext','conj'].includes(a.asp.type)).slice(0,2);
+    let softDesc='';
+    if(softAsps.length){
+      softDesc='\n生まれつきスムーズに発揮できる才能として、'
+        +softAsps.map(a=>PJ[a.p1.name]+'と'+PJ[a.p2.name]+'が自然につながっている').join('、')
+        +'という星の流れがあります。これらは「頑張らなくてもできてしまうこと」で、あなたにとっては当たり前すぎて気づきにくいかもしれませんが、他の人には簡単にはできない才能です。';
+    }
+    const mcWord=mc_?{'fire':'情熱やエネルギーで周りを引っ張るリーダー的な役割','earth':'地道な努力と確かな技術で社会に貢献する役割','air':'知識や言葉を使って人と人をつなぐ役割','water':'感性や共感力で人の心に寄り添う役割'}[mc_.sign.el]:'';
+    const p3=
+      '木星は'+jup.sign.name+'、'+jupH+'にあります。'+jupWord+'傾向があります。'
+     +(jupAsp?'\n木星は、'+jupAsp+'。':'')
+     +(mc_?'\n\n仕事や社会での役割について言えば、あなたは「'+mcWord+'」として力を発揮しやすいでしょう（'+mc_.sign.name+'の方向性より）。':'')
+     +softDesc
+     +'\n\n大切なのは、あなたがすでに持っているものを信じることです。「特別なことをしなければ」と思わなくていいのかもしれません。今の自分の延長線上に、使命へとつながる道が続いています。';
+
+    // 現在の運勢
+    const today=new Date().toLocaleDateString('ja-JP');
+    const sunTr={
+      fire:'新しい何かを始めたいというエネルギーが湧いてきやすい時期',
+      earth:'じっくり取り組んできたことが形になり始める時期',
+      air:'人との出会いや情報から、思わぬヒントやチャンスが生まれやすい時期',
+      water:'自分の内側と向き合うことで、大切なことに気づける時期'
+    }[sun.sign.el];
+    const satTr={
+      fire:'「本当にこの方向でいいのか」と立ち止まって考えてみると、新しい答えが見えてくる時期',
+      earth:'土台をしっかり固め直すことが、この先の安定につながる時期',
+      air:'伝え方やコミュニケーションのスタイルを見直すと、関係が好転しやすい時期',
+      water:'感情や家族、心の奥にあるテーマと、やさしく向き合う時期'
+    }[sat.sign.el];
+    const p4=
+      '今（'+today+'）の星の流れを見ると、'+sunTr+'かもしれません。'
+     +'\n一方で、'+satTr+'でもあります。'
+     +'\n\n星は急かしません。あなたのペースで、できることをひとつひとつ。今この瞬間にやれることを丁寧にやり続けることが、星の流れに乗る一番の近道です。';
+
+    set('rcp',p1);set('rcd',p2);set('rcm',p3);set('tr',p4);
+  }
+}
+
+// ========== MAIN ==========
+let CChart=null;
+async function startReading(){
+  const dateVal=document.getElementById('idate').value;
+  const timeVal=document.getElementById('itime').value||'12:00';
+  const lat=parseFloat(document.getElementById('ilat').value);
+  const lng=parseFloat(document.getElementById('ilng').value);
+  const city=document.getElementById('icity').value||'出生地';
+  if(!dateVal){alert('生年月日を入力してください');return;}
+  if(isNaN(lat)||isNaN(lng)){alert('出生地を選択してください（都市名を入力してリストから選んでください）');return;}
+  const btn=document.getElementById('sbtn');btn.disabled=true;btn.textContent='⏳ 計算中…';
+  try{
+    const tzOff=parseFloat(document.getElementById('itz').value)||9;
+    CChart=calcChart(dateVal,timeVal,lat,lng,BTK,tzOff);
+    document.getElementById('HP').style.display='none';
+    document.getElementById('rp').classList.add('show');
+    window.scrollTo(0,0);
+    const dO=new Date(dateVal);
+    document.getElementById('rt').textContent=city+' — '+dO.getFullYear()+'年'+(dO.getMonth()+1)+'月'+dO.getDate()+'日';
+    document.getElementById('rs').textContent='太陽 '+CChart.planets[0].sign.name+' · 月 '+CChart.planets[1].sign.name+(CChart.asc?' · ASC '+CChart.asc.sign.name:'');
+    if(!BTK)document.getElementById('ub').classList.add('show');
+    drawChart(CChart);renderPL(CChart);renderAS(CChart);
+    await generateReadings(CChart,city);
+  }catch(e){alert('計算エラー: '+e.message);console.error(e);}
+  btn.disabled=false;btn.textContent='✦ 星を読む ✦';
+}
+function goBack(){document.getElementById('HP').style.display='flex';document.getElementById('rp').classList.remove('show');document.getElementById('ub').classList.remove('show');window.scrollTo(0,0);}
+</script>
+</body>
+</html>
