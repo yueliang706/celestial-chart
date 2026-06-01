@@ -9,32 +9,32 @@
 :root{
   --bg:#f5f0e8;--panel:#faf6ec;--border:#c8a060;--gold:#a07030;--text:#2a1a00;
   --dim:#8a7050;--blue:#1a3a8a;--red:#8a1a1a;--green:#1a5a1a;--mid:#5a4020;
-  --dark:#0e0e28;--dtext:#d4d0e8;--ddim:#5a5878;
+  --dark:#1a1035;--dtext:#e8e4f8;--ddim:#8880a8;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--dark);color:var(--dtext);font-family:'Noto Serif JP',serif;font-weight:300;min-height:100vh;}
 
 /* HERO */
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;background:var(--dark);}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;background:linear-gradient(160deg,#1a1035 0%,#0d1f3c 50%,#1a1035 100%);}
 .h1{font-family:'Cinzel Decorative',serif;font-size:clamp(22px,5vw,44px);font-weight:900;background:linear-gradient(135deg,#c8a96e,#e8c88e,#9ba8cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:14px 0 10px;}
 .hsub{font-size:11px;letter-spacing:.3em;color:var(--ddim);margin-bottom:34px;}
 .sym{font-size:36px;filter:drop-shadow(0 0 10px #c8a96e);}
 .hline{width:1px;height:40px;background:linear-gradient(to bottom,transparent,#252560,transparent);margin:0 auto 34px;}
 
 /* FORM */
-.fc{background:#0e0e28;border:1px solid #1c1c45;border-radius:16px;padding:26px 22px;width:100%;max-width:450px;box-shadow:0 0 50px rgba(0,0,0,.6);position:relative;}
+.fc{background:rgba(255,255,255,0.06);border:1px solid rgba(200,169,110,0.4);border-radius:16px;padding:26px 22px;width:100%;max-width:450px;box-shadow:0 0 50px rgba(0,0,0,.6);position:relative;}
 .fc::before{content:'';position:absolute;top:-1px;left:25%;right:25%;height:1px;background:linear-gradient(90deg,transparent,#c8a96e,transparent);}
 .ftit{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.3em;color:#c8a96e;text-align:center;margin-bottom:18px;text-transform:uppercase;}
 .fr{margin-bottom:13px;position:relative;}
 .fr label{display:block;font-size:10px;color:#5a5878;letter-spacing:.1em;margin-bottom:4px;text-transform:uppercase;}
-.fr input,.fr select{width:100%;background:#06061a;border:1px solid #1c1c45;border-radius:7px;color:var(--dtext);font-family:'JetBrains Mono',monospace;font-size:13px;padding:8px 10px;outline:none;-webkit-appearance:none;transition:border-color .2s;}
+.fr input,.fr select{width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(200,169,110,0.3);border-radius:7px;color:var(--dtext);font-family:'JetBrains Mono',monospace;font-size:13px;padding:8px 10px;outline:none;-webkit-appearance:none;transition:border-color .2s;}
 .fr input:focus,.fr select:focus{border-color:#6478c8;}
-.fr select option{background:#0e0e28;}
+.fr select option{background:#1a1035;}
 .fcols{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .ntbtn{display:block;width:100%;text-align:center;font-size:10px;color:#5a5878;margin-top:4px;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:'Noto Serif JP',serif;}
-.un{background:#06061a;border:1px solid #1c1c45;border-radius:6px;padding:8px 10px;margin-top:5px;font-size:11px;color:#9890b8;line-height:1.7;display:none;}
+.un{background:#06061a;border:1px solid #1c1c45;border-radius:6px;padding:8px 10px;margin-top:5px;font-size:11px;color:#c8c0e0;line-height:1.7;display:none;}
 .un.show{display:block;}
-.sbtn{width:100%;margin-top:16px;background:linear-gradient(135deg,#1a1a40,#252560);border:1px solid #c8a96e;border-radius:8px;padding:12px;color:#c8a96e;font-family:'Cinzel',serif;font-size:13px;letter-spacing:.2em;cursor:pointer;transition:all .3s;}
+.sbtn{width:100%;margin-top:16px;background:linear-gradient(135deg,#2a2060,#3a2880);border:1px solid #c8a96e;border-radius:8px;padding:12px;color:#c8a96e;font-family:'Cinzel',serif;font-size:13px;letter-spacing:.2em;cursor:pointer;transition:all .3s;}
 .sbtn:hover{box-shadow:0 0 18px rgba(200,169,110,.2);}
 .sbtn:disabled{opacity:.4;cursor:not-allowed;}
 #csg{display:none;position:absolute;left:0;right:0;top:calc(100% - 1px);background:#0e0e28;border:1px solid #252560;border-radius:0 0 8px 8px;z-index:100;box-shadow:0 6px 18px rgba(0,0,0,.6);overflow:hidden;}
@@ -46,7 +46,7 @@ body{background:var(--dark);color:var(--dtext);font-family:'Noto Serif JP',serif
 #gs{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:#5a5878;pointer-events:none;}
 
 /* RESULT */
-#rp{display:none;background:var(--dark);padding:24px 14px 60px;max-width:860px;margin:0 auto;}
+#rp{display:none;background:linear-gradient(160deg,#1a1035 0%,#0d1f3c 100%);padding:24px 14px 60px;max-width:860px;margin:0 auto;}
 #rp.show{display:block;}
 .rh{text-align:center;padding:24px 0 18px;border-bottom:1px solid #1c1c45;margin-bottom:22px;}
 .rt{font-family:'Cinzel Decorative',serif;font-size:clamp(13px,3vw,20px);background:linear-gradient(135deg,#c8a96e,#e8c88e,#9ba8cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;}
@@ -61,22 +61,22 @@ body{background:var(--dark);color:var(--dtext);font-family:'Noto Serif JP',serif
 #nc{display:block;max-width:100%;height:auto;}
 
 /* PLANET TABLE */
-.ptw{background:#0e0e28;border:1px solid #1c1c45;border-radius:10px;padding:13px;}
+.ptw{background:rgba(255,255,255,0.05);border:1px solid rgba(200,169,110,0.25);border-radius:10px;padding:13px;}
 .ptt{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;color:#c8a96e;margin-bottom:9px;text-transform:uppercase;}
 .pr{display:flex;align-items:center;padding:5px 0;border-bottom:1px solid rgba(28,28,69,.5);font-size:11px;gap:6px;}
 .pr:last-child{border-bottom:none;}
 .ps{width:17px;text-align:center;font-size:13px;}
 .pn{color:#5a5878;width:44px;font-size:10px;}
 .pg{flex:1;color:var(--dtext);}
-.pd{font-family:'JetBrains Mono',monospace;font-size:10px;color:#9890b8;}
+.pd{font-family:'JetBrains Mono',monospace;font-size:10px;color:#c8c0e0;}
 .prt{font-size:8px;color:#c86888;}
 .ph{font-size:9px;font-family:'JetBrains Mono',monospace;color:#6478c8;background:rgba(100,120,200,.1);border:1px solid rgba(100,120,200,.2);border-radius:3px;padding:1px 4px;}
 
 /* ASPECTS */
-.as2{background:#0e0e28;border:1px solid #1c1c45;border-radius:10px;padding:14px;margin-bottom:16px;}
+.as2{background:rgba(255,255,255,0.05);border:1px solid rgba(200,169,110,0.25);border-radius:10px;padding:14px;margin-bottom:16px;}
 .ast{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;color:#c8a96e;text-transform:uppercase;margin-bottom:10px;}
 .asg{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;}
-.ac2{display:flex;align-items:center;gap:5px;background:#06061a;border:1px solid #1c1c45;border-radius:5px;padding:5px 8px;font-size:10px;}
+.ac2{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(100,120,200,0.3);border-radius:5px;padding:5px 8px;font-size:10px;}
 .at{font-weight:600;font-size:11px;}
 .aconj{color:#c8a96e;}.atrin{color:#78b890;}.asext{color:#6478c8;}.asq{color:#c86888;}.aopp{color:#c05050;}
 .ab{color:#5a5878;}
@@ -85,7 +85,7 @@ body{background:var(--dark);color:var(--dtext);font-family:'Noto Serif JP',serif
 /* READING */
 .rg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
 @media(max-width:560px){.rg{grid-template-columns:1fr;}}
-.rc{background:#0e0e28;border:1px solid #1c1c45;border-radius:11px;padding:16px;position:relative;overflow:hidden;}
+.rc{background:rgba(255,255,255,0.05);border:1px solid rgba(200,169,110,0.25);border-radius:11px;padding:16px;position:relative;overflow:hidden;}
 .rc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
 .rcp::before{background:linear-gradient(90deg,#c8a96e,#e8c88e);}
 .rcd::before{background:linear-gradient(90deg,#6478c8,#8898e8);}
@@ -93,15 +93,15 @@ body{background:var(--dark);color:var(--dtext);font-family:'Noto Serif JP',serif
 .ri{font-size:20px;margin-bottom:6px;}
 .rl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:9px;}
 .rcp .rl{color:#c8a96e;}.rcd .rl{color:#6478c8;}.rcm .rl{color:#c86888;}
-.rtx{font-size:11px;line-height:1.95;color:#9890b8;}
+.rtx{font-size:11px;line-height:1.95;color:#c8c0e0;}
 .ld{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80px;gap:8px;}
 .sp{width:20px;height:20px;border:2px solid #1c1c45;border-top-color:#c8a96e;border-radius:50%;animation:spin 1s linear infinite;}
-.ts{background:#0e0e28;border:1px solid #1c1c45;border-radius:11px;padding:16px;margin-bottom:24px;}
+.ts{background:rgba(255,255,255,0.05);border:1px solid rgba(200,169,110,0.25);border-radius:11px;padding:16px;margin-bottom:24px;}
 .tst{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;color:#9ba8cc;text-transform:uppercase;margin-bottom:10px;}
-.tsr{font-size:11px;line-height:1.95;color:#9890b8;}
-.ub{background:#06061a;border:1px solid #c8a96e;border-radius:8px;padding:9px 13px;margin-bottom:14px;display:none;align-items:center;gap:8px;font-size:11px;}
+.tsr{font-size:11px;line-height:1.95;color:#c8c0e0;}
+.ub{background:rgba(200,169,110,0.1);border:1px solid #c8a96e;border-radius:8px;padding:9px 13px;margin-bottom:14px;display:none;align-items:center;gap:8px;font-size:11px;}
 .ub.show{display:flex;}
-.ubt{color:#9890b8;}
+.ubt{color:#c8c0e0;}
 .ubl{margin-left:auto;font-size:10px;color:#c8a96e;cursor:pointer;text-decoration:underline;white-space:nowrap;}
 @keyframes spin{to{transform:rotate(360deg);}}
 </style>
@@ -174,8 +174,18 @@ body{background:var(--dark);color:var(--dtext);font-family:'Noto Serif JP',serif
     <div class="rc rcm"><div class="ri">☽</div><div class="rl">使命</div><div class="rtx" id="rcm"><div class="ld"><div class="sp" style="border-top-color:#c86888"></div><span style="font-size:10px;color:#5a5878">鑑定中…</span></div></div></div>
   </div>
   <div class="as2" style="margin-bottom:16px">
-  <div class="ast">◈ エレメント分布</div>
-  <div style="max-width:260px;margin:0 auto"><canvas id="dist-chart"></canvas></div>
+  <div class="ast">◈ エレメント＆クオリティ分布</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+    <div style="text-align:center">
+      <div style="font-size:9px;color:#c8a060;letter-spacing:.1em;margin-bottom:6px">エレメント</div>
+      <canvas id="dist-chart" width="160" height="160"></canvas>
+    </div>
+    <div style="text-align:center">
+      <div style="font-size:9px;color:#c8a060;letter-spacing:.1em;margin-bottom:6px">クオリティ</div>
+      <canvas id="qual-chart" width="160" height="160"></canvas>
+    </div>
+  </div>
+  <div id="dist-comment" style="font-size:11px;line-height:1.8;color:#c8c0e0;margin-top:8px"></div>
 </div>
 <div class="ts"><div class="tst">◎ 現在のトランジット運勢</div><div class="tsr" id="tr"><div class="ld"><div class="sp" style="border-top-color:#9ba8cc"></div></div></div></div>
 </section>
@@ -707,22 +717,28 @@ function buildPersonalityText(sun, moon, merc, ven, mars, asc, sunData, moonData
     if (dist.comboText.caution) text += `注意点：${dist.comboText.caution}\n`;
   }
 
-  // 水星・金星・火星
+  // 水星・金星・火星（説明付き）
+  const mercDesc={Aries:'直感的でスピーディーな判断力があり、率直な物言いが特徴です',Taurus:'ゆっくり確実に考えをまとめ、一度決めたら揺るがない説得力ある言葉を持ちます',Gemini:'話題が豊富で会話上手。情報収集と情報共有が得意な知的好奇心の塊です',Cancer:'感情と言葉が直結しており、相手の気持ちに寄り添った言葉を選ぶ共感力があります',Leo:'堂々とした表現力と説得力があり、人を惹きつける話し方ができます',Virgo:'細部まで気を配る分析的な思考の持ち主。論理的で正確な情報を大切にします',Libra:'バランスを取りながら話し、相手の立場を考えた公平な判断ができます',Scorpio:'物事の本質を鋭く見抜く洞察力があり、深い思考と探求心を持っています',Sagittarius:'大きな視野で物事を捉え、哲学的・教育的な話題への関心が高いです',Capricorn:'実用的で現実的な思考の持ち主。目的に向かって効率よく考えを進めます',Aquarius:'独創的なアイデアと革新的な思考が持ち味。型にはまらない発想ができます',Pisces:'直感とイメージで物事を捉え、言葉にならないものを感じ取る繊細な感受性があります'};
+  const venDesc={Aries:'一目惚れしやすく、愛情表現が積極的。情熱的で直接的な愛し方をします',Taurus:'愛情が深くて安定しており、物質的・感覚的な喜びで愛を表現します',Gemini:'知的なつながりや会話を大切にし、多様な人と楽しい関係を築けます',Cancer:'家族や親しい人への愛情が深く、守り育てる愛し方をします',Leo:'愛情表現が豊かで情熱的。パートナーを輝かせたい気持ちが強いです',Virgo:'細やかな気配りで愛情を示し、実用的なサポートで相手を大切にします',Libra:'調和と美を重んじ、対等で美しい関係を築くことに喜びを感じます',Scorpio:'一度愛したら深く、強い絆を求めます。情熱と独占欲が愛の形です',Sagittarius:'自由と冒険を共有できる関係を好み、心の広い愛し方をします',Capricorn:'誠実で長期的な関係を重視し、時間をかけて信頼を築く愛し方です',Aquarius:'友情から始まる愛を好み、自由と個性を尊重した関係を大切にします',Pisces:'無条件の愛と深い共感で相手と溶け合うような、夢幻的な愛し方をします'};
+  const marsDesc={Aries:'瞬発力と行動力が抜群。思い立ったらすぐ動く情熱的なエネルギーの持ち主です',Taurus:'粘り強く着実に動きます。一度動き出したら最後までやり遂げる底力があります',Gemini:'知的好奇心がエネルギー源。複数のことを同時進行で動かせます',Cancer:'感情が行動の原動力。家族や大切な人を守るために強い力を発揮します',Leo:'創造的でダイナミックな行動力の持ち主。人前で輝くことにエネルギーを注ぎます',Virgo:'緻密で計画的な行動が得意。完璧を目指して丁寧に取り組みます',Libra:'協調しながら動くタイプ。人間関係を大切にしながら目標を達成します',Scorpio:'執念深い行動力と粘り強さが特徴。目標を定めたら深く集中して追います',Sagittarius:'大きな目標に向かって自由に動くタイプ。チャレンジ精神が旺盛です',Capricorn:'計画的で責任感ある行動が特徴。長期的な目標に向かって着実に進みます',Aquarius:'独自の方法で動くタイプ。集団のための革新的な行動に力を発揮します',Pisces:'直感に従って動き、感受性豊かなエネルギーで芸術的・精神的な活動に向きます'};
+
   if (merc) {
-    const mercH = (chart.birthTimeKnown && merc.house) ? `${merc.house}H` : "";
-    text += `\n思考・話し方：水星${merc.signJa || merc.sign}${mercH}`;
-    text += merc.retrograde ? "（逆行中）" : "";
-    text += "。";
+    const mercH = (chart.birthTimeKnown && merc.house) ? `${merc.house}ハウス` : "";
+    const mSign = merc.sign||merc.signJa||'';
+    text += `\n\n【思考・話し方】水星${merc.signJa||mSign}${mercH?'・'+mercH:''}${merc.retrograde?'（逆行中）':''}\n`;
+    text += (mercDesc[mSign]||'') + '。';
   }
   if (ven) {
-    const venH = (chart.birthTimeKnown && ven.house) ? `${ven.house}H` : "";
-    text += `愛情・美意識：金星${ven.signJa || ven.sign}${venH}。`;
+    const venH = (chart.birthTimeKnown && ven.house) ? `${ven.house}ハウス` : "";
+    const vSign = ven.sign||ven.signJa||'';
+    text += `\n\n【愛情・美意識】金星${ven.signJa||vSign}${venH?'・'+venH:''}\n`;
+    text += (venDesc[vSign]||'') + '。';
   }
   if (mars) {
-    const marsH = (chart.birthTimeKnown && mars.house) ? `${mars.house}H` : "";
-    text += `行動・情熱：火星${mars.signJa || mars.sign}${marsH}`;
-    text += mars.retrograde ? "（逆行中）" : "";
-    text += "。";
+    const marsH = (chart.birthTimeKnown && mars.house) ? `${mars.house}ハウス` : "";
+    const mSign2 = mars.sign||mars.signJa||'';
+    text += `\n\n【行動力・情熱】火星${mars.signJa||mSign2}${marsH?'・'+marsH:''}${mars.retrograde?'（逆行中）':''}\n`;
+    text += (marsDesc[mSign2]||'') + '。';
   }
 
   // ASC
@@ -1305,7 +1321,10 @@ function makeSummary(chart,city){
         mars=g('Mars'),jup=g('Jupiter'),sat=g('Saturn'),ura=g('Uranus'),nep=g('Neptune'),plu=g('Pluto');
   const h=p=>(chart.btk&&p.house)?p.house+'H':'';
   const rv=p=>p.retrograde?'℞':'';
-  const fmt=p=>p.sign.name+' '+p.deg.toFixed(1)+'°'+(h(p)?' '+h(p):'')+rv(p);
+  const fmt=p=>{
+    const sn=typeof p.sign==='object'?p.sign.name:(p.signJa||p.sign||'');
+    return sn+' '+p.deg.toFixed(1)+'°'+(h(p)?' '+h(p):'')+rv(p);
+  };
   // アスペクト詳細：サイン・ハウス付き
   const aspDetail=chart.aspects.slice(0,12).map(a=>{
     const h1=h(a.p1),h2=h(a.p2);
@@ -1321,6 +1340,36 @@ function makeSummary(chart,city){
 
 
 function generateReadings(chart,city){
+  // planetsのsignを正規化（オブジェクト→文字列）＋element/qualityを付与
+  const jaToEn={'牡羊座':'Aries','牡牛座':'Taurus','双子座':'Gemini','蟹座':'Cancer',
+    '獅子座':'Leo','乙女座':'Virgo','天秤座':'Libra','蠍座':'Scorpio',
+    '射手座':'Sagittarius','山羊座':'Capricorn','水瓶座':'Aquarius','魚座':'Pisces'};
+  const signEl={'Aries':'fire','Taurus':'earth','Gemini':'air','Cancer':'water',
+    'Leo':'fire','Virgo':'earth','Libra':'air','Scorpio':'water',
+    'Sagittarius':'fire','Capricorn':'earth','Aquarius':'air','Pisces':'water'};
+  const signQu={'Aries':'cardinal','Taurus':'fixed','Gemini':'mutable','Cancer':'cardinal',
+    'Leo':'fixed','Virgo':'mutable','Libra':'cardinal','Scorpio':'fixed',
+    'Sagittarius':'mutable','Capricorn':'cardinal','Aquarius':'fixed','Pisces':'mutable'};
+  chart.planets.forEach(p=>{
+    if(typeof p.sign==='object'&&p.sign.name){
+      p.signJa=p.sign.name;
+      p.element=p.sign.el||signEl[jaToEn[p.sign.name]]||'fire';
+      p.quality=signQu[jaToEn[p.sign.name]]||'cardinal';
+      p.sign=jaToEn[p.sign.name]||p.sign.name;
+    } else {
+      if(!p.element)p.element=signEl[p.sign]||'fire';
+      if(!p.quality)p.quality=signQu[p.sign]||'cardinal';
+    }
+    if(!p.signJa)p.signJa=p.sign;
+  });
+  if(chart.asc&&typeof chart.asc.sign==='object'){
+    chart.asc.signJa=chart.asc.sign.name;chart.asc.sign=chart.asc.sign.name;
+  }
+  if(chart.mc&&typeof chart.mc.sign==='object'){
+    chart.mc.signJa=chart.mc.sign.name;chart.mc.sign=chart.mc.sign.name;
+  }
+  // BTKフラグをchartに明示的にセット
+  chart.birthTimeKnown=chart.btk;
   // エンジン呼び出し
   const result = generateReading(chart);
 
@@ -1363,61 +1412,163 @@ function generateReadings(chart,city){
   renderDistribution(result.distribution);
 }
 
-function renderDistribution(dist){
-  const cv=document.getElementById('dist-chart');
+function drawRadar(cvId,labels,vals,colors,max){
+  const cv=document.getElementById(cvId);
   if(!cv)return;
   const ctx=cv.getContext('2d');
   const W=cv.width,H=cv.height,cx=W/2,cy=H/2;
-  const R=Math.min(cx,cy)-30;
-  const labels=['火','地','風','水'];
-  const colors=['#e05030','#50a030','#c0a020','#2060c0'];
-  const vals=dist.radarData.datasets[0].data;
-  const max=5;
-  const N=4;
+  const R=Math.min(cx,cy)-26;
+  const N=labels.length;
   ctx.clearRect(0,0,W,H);
-  // グリッド
   for(let ring=1;ring<=max;ring++){
     ctx.beginPath();
     for(let i=0;i<N;i++){
       const a=i*2*Math.PI/N-Math.PI/2;
       const r=R*ring/max;
-      if(i===0)ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
-      else ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
+      i===0?ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
     }
-    ctx.closePath();
-    ctx.strokeStyle='rgba(200,160,80,0.2)';ctx.lineWidth=0.8;ctx.stroke();
+    ctx.closePath();ctx.strokeStyle='rgba(200,160,80,0.45)';ctx.lineWidth=1;ctx.stroke();
   }
-  // 軸線
   for(let i=0;i<N;i++){
     const a=i*2*Math.PI/N-Math.PI/2;
     ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a));
-    ctx.strokeStyle='rgba(200,160,80,0.3)';ctx.lineWidth=0.8;ctx.stroke();
-    // ラベル
-    const lr=R+16;
-    ctx.font='bold 11px serif';ctx.fillStyle=colors[i];ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.strokeStyle='rgba(200,160,80,0.6)';ctx.lineWidth=1.2;ctx.stroke();
+    const lr=R+14;
+    ctx.font='bold 10px serif';ctx.fillStyle=colors[i%colors.length];ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillText(labels[i],cx+lr*Math.cos(a),cy+lr*Math.sin(a));
-    // 数値
-    ctx.font='10px monospace';ctx.fillStyle='rgba(200,160,80,0.7)';
-    ctx.fillText(vals[i],cx+(R*vals[i]/max+8)*Math.cos(a),cy+(R*vals[i]/max+8)*Math.sin(a));
+    if(vals[i]>0){
+      const vr=R*vals[i]/max;
+      ctx.font='9px monospace';ctx.fillStyle='rgba(255,220,120,0.9)';
+      ctx.fillText(vals[i],cx+(vr+10)*Math.cos(a),cy+(vr+10)*Math.sin(a));
+    }
   }
-  // データポリゴン
   ctx.beginPath();
   for(let i=0;i<N;i++){
-    const a=i*2*Math.PI/N-Math.PI/2;
-    const r=R*vals[i]/max;
-    if(i===0)ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
-    else ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
+    const a=i*2*Math.PI/N-Math.PI/2,r=R*vals[i]/max;
+    i===0?ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
   }
-  ctx.closePath();
-  ctx.fillStyle='rgba(200,120,80,0.25)';ctx.fill();
-  ctx.strokeStyle='rgba(200,120,80,0.9)';ctx.lineWidth=2;ctx.stroke();
-  // 頂点
+  ctx.closePath();ctx.fillStyle='rgba(200,120,80,0.22)';ctx.fill();
+  ctx.strokeStyle='rgba(200,120,80,1)';ctx.lineWidth=2.5;ctx.stroke();
   for(let i=0;i<N;i++){
-    const a=i*2*Math.PI/N-Math.PI/2;
-    const r=R*vals[i]/max;
-    ctx.beginPath();ctx.arc(cx+r*Math.cos(a),cy+r*Math.sin(a),3,0,2*Math.PI);
-    ctx.fillStyle=colors[i];ctx.fill();
+    const a=i*2*Math.PI/N-Math.PI/2,r=R*vals[i]/max;
+    ctx.beginPath();ctx.arc(cx+r*Math.cos(a),cy+r*Math.sin(a),3.5,0,2*Math.PI);
+    ctx.fillStyle=colors[i%colors.length];ctx.fill();
   }
+}
+
+function renderDistribution(dist){
+  const ec=dist.elementCount,qc=dist.qualityCount;
+  // エレメントレーダー
+  drawRadar('dist-chart',['火','地','風','水'],
+    [ec.fire,ec.earth,ec.air,ec.water],
+    ['#e05030','#50a030','#c0a020','#2060c0'],5);
+  // クオリティレーダー
+  drawRadar('qual-chart',['活動宮','不動宮','柔軟宮'],
+    [qc.cardinal,qc.fixed,qc.mutable],
+    ['#e09030','#6060c0','#30a080'],5);
+
+  // コメント生成
+  const ECOMMENT={
+    fire:{
+      0:'🔥 火のエレメントが0個。情熱に火をつけることや、直感的に行動することが少し苦手かもしれません。意識的に「やってみる」勇気を持つことが成長のカギ。',
+      1:'🔥 火1個。情熱はありますが控えめ。必要なときにエネルギーを集中させる力があります。',
+      2:'🔥🔥 火2個。バランスよく情熱と行動力を持っています。',
+      3:'🔥🔥🔥 火3個。情熱と行動力が強め。エネルギッシュに動けますが燃え尽きに注意。',
+      4:'🔥🔥🔥🔥 火4個以上。とても情熱的で行動的。衝動的になりすぎないよう意識を。',
+      5:'🔥×5 ほぼ全て火。圧倒的なエネルギーと情熱の持ち主。休息も大切に。'
+    },
+    earth:{
+      0:'🌱 地のエレメントが0個。現実的・実務的な側面よりも、感性や理想を重視する傾向。お金や体の管理を意識的にやると◎',
+      1:'🌱 地1個。現実感覚は持っていますが、少なめ。',
+      2:'🌱🌱 地2個。現実と理想のバランスが取れています。',
+      3:'🌱🌱🌱 地3個。しっかりとした現実感覚と安定感があります。',
+      4:'🌱🌱🌱🌱 地4個以上。非常に現実的で安定志向。変化を恐れすぎないよう意識を。',
+      5:'🌱×5 ほぼ全て地。圧倒的な安定感と実務能力。柔軟性も大切に。'
+    },
+    air:{
+      0:'🌬 風のエレメントが0個。コミュニケーションや論理的思考より、感覚や感情で動くタイプ。言葉で伝える練習が成長につながります。',
+      1:'🌬 風1個。知性はありますが感情優先。',
+      2:'🌬🌬 風2個。知性と感性のバランスが良い。',
+      3:'🌬🌬🌬 風3個。頭の回転が速く、コミュニケーション上手。',
+      4:'🌬🌬🌬🌬 風4個以上。非常に知的で社交的。感情面も大切に。',
+      5:'🌬×5 ほぼ全て風。論理と社交の達人。感情的なつながりも意識して。'
+    },
+    water:{
+      0:'💧 水のエレメントが0個。感情や直感よりも、論理・行動・現実で生きるタイプ。感受性を意識的に育てることが豊かさにつながります。',
+      1:'💧 水1個。感受性はありますが控えめ。',
+      2:'💧💧 水2個。感情と理性のバランスが良い。',
+      3:'💧💧💧 水3個。深い感受性と共感力があります。',
+      4:'💧💧💧💧 水4個以上。感受性が豊か。境界線を持つことも大切に。',
+      5:'💧×5 ほぼ全て水。深い共感と直感の持ち主。現実面も意識して。'
+    }
+  };
+  const QCOMMENT={
+    cardinal:{
+      0:'活動宮0：物事を始めるエネルギーが少なめ。継続や安定が得意な分、スタートに意識を向けて。',
+      1:'活動宮1：スタート力は控えめですが確実に動きます。',
+      2:'活動宮2：バランスよく物事を始められます。',
+      3:'活動宮3以上：開拓力とスタート力に優れています。'
+    },
+    fixed:{
+      0:'不動宮0：一つのことへの集中や粘りが少なめ。継続する習慣をつけると◎',
+      1:'不動宮1：集中力は持っていますが変化にも対応できます。',
+      2:'不動宮2：集中力と安定感があります。',
+      3:'不動宮3以上：強い意志と集中力。頑固にならないよう意識を。'
+    },
+    mutable:{
+      0:'柔軟宮0：変化への適応が少し苦手。でも一度決めたことをやり通す力があります。',
+      1:'柔軟宮1：適応力はありますが安定志向です。',
+      2:'柔軟宮2：変化と安定のバランスが取れています。',
+      3:'柔軟宮3以上：適応力と柔軟性に優れています。'
+    }
+  };
+  function ecmt(el,n){const k=Math.min(n,5);return ECOMMENT[el][k]||'';}
+  function qcmt(q,n){const k=Math.min(n,3);return QCOMMENT[q][k]||'';}
+
+  const lines=[
+    '<b style="color:#c8a060">◆ エレメント分布（パーソナル天体5つ）</b>',
+    '火'+ec.fire+'・地'+ec.earth+'・風'+ec.air+'・水'+ec.water,
+    ecmt('fire',ec.fire),ecmt('earth',ec.earth),ecmt('air',ec.air),ecmt('water',ec.water),
+    '',
+    '<b style="color:#c8a060">◆ クオリティ分布</b>',
+    '活動宮'+qc.cardinal+'・不動宮'+qc.fixed+'・柔軟宮'+qc.mutable,
+    qcmt('cardinal',qc.cardinal),qcmt('fixed',qc.fixed),qcmt('mutable',qc.mutable)
+  ];
+  const el=document.getElementById('dist-comment');
+  if(el)el.innerHTML=lines.filter(Boolean).join('<br>');
+}
+
+// ========== MAIN ==========
+let CChart=null;
+function startReading(){
+  const dateVal=document.getElementById('idate').value;
+  const timeVal=document.getElementById('itime').value||'12:00';
+  const lat=parseFloat(document.getElementById('ilat').value);
+  const lng=parseFloat(document.getElementById('ilng').value);
+  const city=document.getElementById('icity').value||'出生地';
+  if(!dateVal){alert('生年月日を入力してください');return;}
+  if(isNaN(lat)||isNaN(lng)){alert('出生地を選択してください（都市名を入力してリストから選んでください）');return;}
+  const btn=document.getElementById('sbtn');
+  btn.disabled=true;btn.textContent='⏳ 計算中…';
+  try{
+    const tzOff=parseFloat(document.getElementById('itz').value)||9;
+    CChart=calcChart(dateVal,timeVal,lat,lng,BTK,tzOff);
+    // planets に nameJa を付与
+    CChart.planets.forEach(p=>{p.nameJa=PJ[p.name];});
+    // angles に signJa を付与
+    if(CChart.asc){CChart.asc.signJa=CChart.asc.sign.name||SG[CChart.asc.sIdx]?.name;}
+    if(CChart.mc){CChart.mc.signJa=CChart.mc.sign.name||SG[CChart.mc.sIdx]?.name;}
+    document.getElementById('HP').style.display='none';
+    document.getElementById('rp').classList.add('show');
+    window.scrollTo(0,0);
+    const dO=new Date(dateVal);
+    document.getElementById('rt').textContent=city+' — '+dO.getFullYear()+'年'+(dO.getMonth()+1)+'月'+dO.getDate()+'日';
+    document.getElementById('rs').textContent='太陽 '+CChart.planets[0].sign.name+' · 月 '+CChart.planets[1].sign.name+(CChart.asc?' · ASC '+CChart.asc.sign.name:'');
+    if(!BTK)document.getElementById('ub').classList.add('show');
+    drawChart(CChart);renderPL(CChart);renderAS(CChart);
+    generateReadings(CChart,city);
+  }catch(e){alert('計算エラー: '+e.message);console.error(e);}
+  btn.disabled=false;btn.textContent='✦ 星を読む ✦';
 }
 
 function goBack(){document.getElementById('HP').style.display='flex';document.getElementById('rp').classList.remove('show');document.getElementById('ub').classList.remove('show');window.scrollTo(0,0);}
