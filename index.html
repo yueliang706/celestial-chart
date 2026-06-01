@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Celestial Chart — 西洋占星術鑑定</title>
+<title>Celestial Chart</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;900&family=Cinzel:wght@400;600&family=Noto+Serif+JP:wght@300;400;600&family=JetBrains+Mono:wght@300;400&display=swap');
 :root{
@@ -633,32 +633,13 @@ async function generateReadings(chart,city){
   }
 
   try{
-    // APIキーをsessionStorageから取得（なければ入力を求める）
-    var apiKey=sessionStorage.getItem('cc_api_key');
-    if(!apiKey){
-      apiKey=window.prompt('Anthropic APIキーを入力してください\n（sk-ant-...で始まるキー）\n\n※キーはこのブラウザのみに一時保存されます。外部サーバーには送られません。');
-      if(!apiKey){throw new Error('APIキーが入力されませんでした');}
-      sessionStorage.setItem('cc_api_key',apiKey.trim());
-    }
-    res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch('/api/reading',{
       method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':apiKey.trim(),
-        'anthropic-version':'2023-06-01'
-      },
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:4000,
-        messages:[{role:'user',content:prompt}]
-      })
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({prompt})
     });
-    if(res.status===401){
-      sessionStorage.removeItem('cc_api_key');
-      throw new Error('APIキーが無効です。再度「星を読む」を押して正しいキーを入力してください');
-    }
     const data=await res.json();
-    const raw=data?.content?.[0]?.text||'';
+    const raw=data?.text||'';
     if(!raw)throw new Error('empty');
     set('rcp',ext(raw,'性格'));
     set('rcd',ext(raw,'運命'));
