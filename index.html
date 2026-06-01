@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Celestial Chart</title>
+<title>Celestial Chart — 西洋占星術鑑定</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;900&family=Cinzel:wght@400;600&family=Noto+Serif+JP:wght@300;400;600&family=JetBrains+Mono:wght@300;400&display=swap');
 :root{
@@ -105,6 +105,7 @@ body{background:var(--dark);color:var(--dtext);font-family:'Noto Serif JP',serif
 .ubl{margin-left:auto;font-size:10px;color:#c8a96e;cursor:pointer;text-decoration:underline;white-space:nowrap;}
 @keyframes spin{to{transform:rotate(360deg);}}
 </style>
+
 </head>
 <body>
 <div class="hero" id="HP">
@@ -172,10 +173,743 @@ body{background:var(--dark);color:var(--dtext);font-family:'Noto Serif JP',serif
     <div class="rc rcd"><div class="ri">♄</div><div class="rl">運命</div><div class="rtx" id="rcd"><div class="ld"><div class="sp" style="border-top-color:#6478c8"></div><span style="font-size:10px;color:#5a5878">鑑定中…</span></div></div></div>
     <div class="rc rcm"><div class="ri">☽</div><div class="rl">使命</div><div class="rtx" id="rcm"><div class="ld"><div class="sp" style="border-top-color:#c86888"></div><span style="font-size:10px;color:#5a5878">鑑定中…</span></div></div></div>
   </div>
-  <div class="ts"><div class="tst">◎ 現在のトランジット運勢</div><div class="tsr" id="tr"><div class="ld"><div class="sp" style="border-top-color:#9ba8cc"></div></div></div></div>
+  <div class="as2" style="margin-bottom:16px">
+  <div class="ast">◈ エレメント分布</div>
+  <div style="max-width:260px;margin:0 auto"><canvas id="dist-chart"></canvas></div>
+</div>
+<div class="ts"><div class="tst">◎ 現在のトランジット運勢</div><div class="tsr" id="tr"><div class="ld"><div class="sp" style="border-top-color:#9ba8cc"></div></div></div></div>
 </section>
 
 <script>
+// ============================================================
+// 西洋占星術 鑑定エンジン v1.0
+// コストゼロ・辞書引き方式
+// ============================================================
+
+// ── 1. 推奨入力データ構造 ──────────────────────────────────
+/*
+calcChart()が返すJSONの推奨形式:
+
+{
+  meta: {
+    birthDate: "1977-07-11",
+    birthTime: "16:10",
+    birthTimeKnown: true,
+    city: "福岡",
+    lat: 33.5904,
+    lng: 130.4017,
+    tzOffset: 9
+  },
+  planets: [
+    {
+      name: "Sun",           // 天体名（英語）
+      nameJa: "太陽",
+      lon: 108.9,            // 黄経（0-360）
+      sign: "Cancer",        // サイン（英語）
+      signJa: "蟹座",
+      signIndex: 3,          // 0=牡羊〜11=魚
+      deg: 18.9,             // サイン内の度数
+      house: 8,              // ハウス番号（1-12）、時間不明時はnull
+      element: "water",      // fire/earth/air/water
+      quality: "cardinal",   // cardinal/fixed/mutable
+      retrograde: false
+    },
+    // ... Moon, Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto
+  ],
+  angles: {
+    asc: { lon: 244.2, sign: "Sagittarius", signJa: "射手座", deg: 4.2 },
+    mc:  { lon: 165.9, sign: "Virgo",       signJa: "乙女座",  deg: 15.9 },
+    dsc: { lon: 64.2,  sign: "Gemini",      signJa: "双子座",  deg: 4.2 },
+    ic:  { lon: 345.9, sign: "Pisces",      signJa: "魚座",    deg: 15.9 }
+  },
+  houseCusps: [244.2, 278.1, 312.0, 345.9, 12.0, 38.1, 64.2, 98.1, 132.0, 165.9, 192.0, 218.1],
+  aspects: [
+    { p1: "Sun", p2: "Pluto", type: "square", orb: 2.3 },
+    ...
+  ],
+  birthTimeKnown: true
+}
+*/
+
+// ── 2. 辞書キー設計 ──────────────────────────────────────────
+// キー命名規則: {カテゴリ}_{天体}_{サイン/ハウス/エレメント}
+// 例: NATAL_SUN_CANCER, NATAL_MOON_TAURUS, TRANSIT_RETROGRADE_MERCURY_H3
+
+const SIGN_KEYS = {
+  "Aries":"ARIES","Taurus":"TAURUS","Gemini":"GEMINI","Cancer":"CANCER",
+  "Leo":"LEO","Virgo":"VIRGO","Libra":"LIBRA","Scorpio":"SCORPIO",
+  "Sagittarius":"SAGITTARIUS","Capricorn":"CAPRICORN","Aquarius":"AQUARIUS","Pisces":"PISCES"
+};
+const PLANET_KEYS = {
+  "Sun":"SUN","Moon":"MOON","Mercury":"MERCURY","Venus":"VENUS","Mars":"MARS",
+  "Jupiter":"JUPITER","Saturn":"SATURN","Uranus":"URANUS","Neptune":"NEPTUNE","Pluto":"PLUTO"
+};
+const ELEMENT_KEYS = { fire:"FIRE", earth:"EARTH", air:"AIR", water:"WATER" };
+const QUALITY_KEYS = { cardinal:"CARDINAL", fixed:"FIXED", mutable:"MUTABLE" };
+
+// ── 3. 鑑定辞書 ──────────────────────────────────────────────
+// 資料の内容をそのまま組み込み
+
+const DICT = {
+
+  // ===== エレメント単体 =====
+  ELEMENT_FIRE: {
+    title: "火のエネルギー",
+    summary: "物事を変える力を最大の特徴とする。人生を切り開く行動力とエネルギーにあふれている。気まぐれでじっとしていることが出来ず、活動的で力強く、大抵はとても目立つ。",
+    keyword: ["情熱的","行動的","自己中心的","エネルギッシュ","刺激を求める"],
+    caution: "情熱的な自我と度を越した大胆さで、相手を焼き尽くす危険性がある。"
+  },
+  ELEMENT_EARTH: {
+    title: "地のエネルギー",
+    summary: "あらゆる物質の形がはっきりしていて、現実の世界でどんな働きをするのか、どんな味がするのか、それが重要。現実を把握し、目の前のことに没頭する傾向がある。",
+    keyword: ["実務的","信頼感","保守的","生産的","合理的"],
+    caution: "リスクではなく安全、混乱ではなく秩序を求める。コントロールを失うことを心の底から恐れている。"
+  },
+  ELEMENT_AIR: {
+    title: "風のエネルギー",
+    summary: "自然の風と同じで、どこにでも溶け込み、絶え間なく動き、世の中でふれたものすべてを結びつけ、関連性をもたせる。感情に左右されず観念的で、私情を挟まない。",
+    keyword: ["知的","さわやか","おしゃべり","好奇心旺盛","実体が掴めない"],
+    caution: "感情の世界に置かれると、筋の通った論理的思考が役に立たないため、不安に襲われ、無防備になる傾向がある。"
+  },
+  ELEMENT_WATER: {
+    title: "水のエネルギー",
+    summary: "爽やかな空気をもたらし、命を育み、浄化する。力強く人を魅了し、謎めいている。人と親密になり同化し、情緒面を安定させたい。",
+    keyword: ["思いやり","献身的","癒し","順応力","感受性豊か"],
+    caution: "感情、ロマンスや想像力といった不合理な世界に心を動かす。感情に支配されるゆえ、感情・価値観・調和・絆・記憶に関心を持つ。"
+  },
+
+  // ===== エレメントコンビネーション（太陽×月） =====
+  COMBO_FIRE_FIRE: {
+    title: "炎のイメージ──燃える、吠える、何にも猶予を与えない",
+    summary: "燃えるような情熱を胸に、自分本位な考えに基づいた生き方を貫く。あつかましくて傲慢で気が短いものの、子供のように人生を心ゆくまで楽しむ。人に自信を与えて「やってみよう」という気にさせることがとても上手。",
+    caution: "持ち前のリーダー的資質を裏付けているのは「不可能なことなどない」という確信。"
+  },
+  COMBO_FIRE_AIR: {
+    title: "発想力に恵まれる議論好きな社交家",
+    summary: "おもしろいアイデアに溢れ、プレゼンテーション能力に長け、すさまじい熱意でまわりの人間を一人残らず関心させ説き伏せる。",
+    caution: "現実性に欠けるため、社交性を発揮したり、斬新なアイデアをひねりだしたりするうちに精も根も尽き果ててしまうことがある。"
+  },
+  COMBO_FIRE_WATER: {
+    title: "情熱的・芸術的で想像することにおいては大胆",
+    summary: "激しやすくロマンティックで移り気。感情の起伏が大きい芸術家のような気質。自分の目標や芸術に向かって突き進む、熱烈な活動家。",
+    caution: "火が水を蒸発させたり、水が火を消したりすると、情緒不安定になったり落ち込んだり、進むべき方向を見失ってしまう。"
+  },
+  COMBO_FIRE_EARTH: {
+    title: "現実的で理性的な傾向・強力な直感・自由と権力への欲望",
+    summary: "性格的に逞しく、説得力がある。何事も実践あるのみと熱中し、周囲をその気にさせて動かす行動第一のひと。天性の能力を武器にビッグチャンスを追い求める。",
+    caution: "火と地の相互作用がうまくいかないと、直感的に何かを確信した次の瞬間に、ふさぎ込んだり猜疑心に駆られ動けなくなる可能性あり。"
+  },
+  COMBO_WATER_WATER: {
+    title: "豊かな想像力と他者との共感能力に長けている",
+    summary: "感情をほとばしらせ、喜怒哀楽に目を潤ませる。過去への感傷や郷愁にひたり、古き時代への憧れを熱っぽく語る。感受性が強く、その場の雰囲気や言外の感情をスポンジのように吸い込んだあげく、他者の感情や欲求と自分のそれらとの区別がつかなくなる。",
+    caution: "筋の通った論を展開したり、客観的な判断を下したりすることを苦手とする。"
+  },
+  COMBO_WATER_EARTH: {
+    title: "最も実質的で人を支え豊かにしてくれる",
+    summary: "生まれながらにして、日々の生活を実用的に過ごすための現実的な知恵が備わっている。バランスのとれた健全な生活を送るために、現実的な欲求も心の欲求も大切にする。",
+    caution: "安全を求めすぎが故、プレッシャーで息が詰まったり、支配欲と狭い視野のせいで思考や行動が鈍ったりする危険性がある。"
+  },
+  COMBO_WATER_AIR: {
+    title: "すばらしいユーモアセンスときわめて独創的な想像力の持ち主",
+    summary: "繊細で鋭い洞察力を秘めているが、現実の世界を扱うのがとても苦手。潜在的にロマンティックな詩人で、言葉や態度が芝居がかることもある。",
+    caution: "理性と感情が分離することもあり、豊かな想像力に恵まれていても、どこか「宙ぶらりん」になりがちで、非現実的なやりかたをしているうちに、せっかくの自己表現の可能性を狭めてしまう傾向にある。"
+  },
+  COMBO_AIR_AIR: {
+    title: "超然としていて観察眼が鋭い",
+    summary: "すべてのコンビネーションのなかで最も理性的で洗練されている。思索を好んで機知に富み、都会的な洗練と礼儀正しさを持つ。心がオープンで公平、人と仲良く調和を重んじる。",
+    caution: "さまざまな人間的感情──苦痛、怒り、嫉妬、依存、恐れ、愛、憎しみ──のすべてを追い払ったり、押さえ込んだり、軽く扱ったりする。"
+  },
+  COMBO_AIR_EARTH: {
+    title: "抽象的な思想と世渡りのための現実性を融合",
+    summary: "合理性と創造性を兼ね備えた性格を生み出す。物事に対して冷静で客観的な見方をし、科学的なアプローチをとる。ドライなユーモアセンスと巧みに言葉を操る能力に長けている。",
+    caution: "感情などのものさしで測れないものには無頓着で、効率主義や科学的な見方にかたより、実用一点張りの味気ない人間になりかねない。"
+  },
+  COMBO_EARTH_EARTH: {
+    title: "経済的・物質的現実を熟知している",
+    summary: "地に足がついた現実的で落ち着いた性質。自分の感覚や本能を熟知していて、それらを通じて世界とつながり、コントロールしている。目標を定めると、それに向かって根気よく自己鍛錬を続ける。",
+    caution: "具体的な事実にのみこだわり、自分の五感や尺度だけを信用する傾向があり、ビジョンや人生の意義を見失ってしまう恐れがある。"
+  },
+
+  // ===== 太陽×サイン =====
+  NATAL_SUN_ARIES: {
+    keyword: "自我",
+    summary: "負けず嫌いで横柄、そして自意識過剰。自由を愛する冒険心と開拓精神を持ち、勇敢で機敏、指導力がある。",
+    strength: ["自由を愛する","冒険心","開拓精神","勇敢","機敏","指導力"],
+    weakness: ["わがまま","喧嘩好き","衝動的","忍耐に欠ける","せっかち"],
+    advice: "エネルギーを建設的な方向に向けることで、持ち前のリーダーシップが真に輝く。"
+  },
+  NATAL_SUN_TAURUS: {
+    keyword: "所有",
+    summary: "粘り強く、安定を求め、官能的。自分のペースを大切にし、物質的・精神的な安定を重視する。",
+    strength: ["粘り強さ","保守的","安定感","実務的","官能的"],
+    weakness: ["頑固","ケチ","短気","狭量","受動的"],
+    advice: "変化を恐れず、柔軟性を取り入れることで人生がより豊かになる。"
+  },
+  NATAL_SUN_GEMINI: {
+    keyword: "コミュニケーション",
+    summary: "臨機応変で好奇心旺盛。表現力があり、機転が利き、さまざまな分野に関心を持つ知的な探求者。",
+    strength: ["臨機応変","好奇心旺盛","表現力","機転","中途半端"],
+    weakness: ["不安定","おしゃべり","気まぐれ","落ち着きがない","一貫性に欠ける"],
+    advice: "多才さを活かしながら、一つのことを深く掘り下げる習慣を。"
+  },
+  NATAL_SUN_CANCER: {
+    keyword: "感情",
+    summary: "観的で母性的。家庭的で共感力が高く、感情豊か。経済観念が鋭く、自分や家族を守ろうとする強い本能を持つ。",
+    strength: ["共感力","家庭的","母性的","経済観念","感情豊か"],
+    weakness: ["操作的","臆病","感情過多","自己憐憫","内向き"],
+    advice: "深い感受性は才能。ただし過去に縛られず、前を向くことで本来の力が発揮される。"
+  },
+  NATAL_SUN_LEO: {
+    keyword: "創造",
+    summary: "創造的で野心的、理想主義者。プライドが高く、大舞台で輝くことへの欲求を持つ。人を鼓舞するカリスマ性がある。",
+    strength: ["創造的","野心","理想主義","プライド","カリスマ性"],
+    weakness: ["無鉄砲","残酷","独善的","自惚れ","支配的"],
+    advice: "プライドを謙虚さと組み合わせることで、本物のリーダーになれる。"
+  },
+  NATAL_SUN_VIRGO: {
+    keyword: "分析",
+    summary: "勤勉で合理的、計画的。分析的で完全主義者的な側面があり、細部への注意力に優れる。奉仕の精神を持つ。",
+    strength: ["勤勉","合理的","計画的","分析的","完全主義"],
+    weakness: ["批判的","神経質","意地悪","偽善的","疑い深い"],
+    advice: "完璧を追求しながらも、自他に対する寛容さを忘れずに。"
+  },
+  NATAL_SUN_LIBRA: {
+    keyword: "バランス",
+    summary: "協調的で、得がたい、平和主義者。正義感があり、美的センスに優れ、人間関係を大切にする社交的な性格。",
+    strength: ["協調性","平和主義","正義感","社交的","美的センス"],
+    weakness: ["気まぐれ","優柔不断","依存的","八方美人","策略的"],
+    advice: "自分自身の意見を持ち、他者への依存から自立することが成長の鍵。"
+  },
+  NATAL_SUN_SCORPIO: {
+    keyword: "変容",
+    summary: "粘り強く、洞察力があり、強い目的意識を持つ。執着心と秘密主義、強烈な感情の持ち主。深い変容と再生のテーマを生きる。",
+    strength: ["粘り強さ","洞察力","目的意識","秘密主義","執着心"],
+    weakness: ["暴力的","猜疑心","支配的","固執","嫉妬深い"],
+    advice: "コントロールへの執着を手放すことで、本来の変容の力が解放される。"
+  },
+  NATAL_SUN_SAGITTARIUS: {
+    keyword: "探求",
+    summary: "楽天的で開放的、正義感が強い。冒険心があり決断力に富む。哲学・旅・高等教育などへの関心が深い自由人。",
+    strength: ["楽天的","開放的","正義感","冒険心","決断力"],
+    weakness: ["でしゃばり","気が短い","無責任","軽率","批判的"],
+    advice: "自由への渇望を大切にしつつ、責任感とのバランスを学ぶことで成長できる。"
+  },
+  NATAL_SUN_CAPRICORN: {
+    keyword: "達成",
+    summary: "用心深く、責任感が強く、野心的。地道な努力で目標を達成するストイックな性格。社会的地位と実績を重視する。",
+    strength: ["責任感","野心","ストイック","実務的","打算的"],
+    weakness: ["悲観的","批判的","頑固","意地悪","臆病"],
+    advice: "努力の成果を信じる一方で、自分への優しさと喜びを忘れずに。"
+  },
+  NATAL_SUN_AQUARIUS: {
+    keyword: "革新",
+    summary: "独創的で独立的、革新的。論理的で理想主義的な社会改革者。個人の自由と人類への貢献を重んじる。",
+    strength: ["独創的","独立的","革新的","論理的","博愛主義"],
+    weakness: ["冷淡","反逆的","固執","独断的","協調性の欠如"],
+    advice: "革新への情熱を、周囲との協働に活かすことで大きな変化を起こせる。"
+  },
+  NATAL_SUN_PISCES: {
+    keyword: "共感",
+    summary: "慈悲深く、自己犠牲的、慈善的。共感力が高く、霊的・芸術的な感受性に恵まれる。境界が曖昧になりやすい。",
+    strength: ["慈悲深さ","自己犠牲","共感力","霊的感受性","適応力"],
+    weakness: ["自己矛盾","悲観的","逃避的","混乱","不安定"],
+    advice: "深い共感力は才能。ただし自己を失わず、境界線を持つことが大切。"
+  },
+
+  // ===== 月×サイン =====
+  NATAL_MOON_ARIES: {
+    summary: "感情が直感的に噴出し、すぐ行動に繋がる。気持ちの動きが速く鮮烈。感情的な刺激や新しい体験を常に求める。",
+    need: "自由と独立、すぐに行動に移せる環境",
+    caution: "感情のコントロールが課題。カッとなりやすいが、後に残らない。"
+  },
+  NATAL_MOON_TAURUS: {
+    summary: "感情を心の奥深くでじっくり処理する。安定と安心を強く求め、物質的・感覚的な豊かさで心が満たされる。",
+    need: "変わらない日常と物質的安定",
+    caution: "変化を嫌い、感情的に固執しすぎることがある。"
+  },
+  NATAL_MOON_GEMINI: {
+    summary: "気持ちを言葉にして整理することで安心感を得る。感情を客観的に見つめる知性を持つが、感情が安定しにくい。",
+    need: "コミュニケーションと知的刺激",
+    caution: "感情と理性が分離しやすく、本音を掴みにくい面がある。"
+  },
+  NATAL_MOON_CANCER: {
+    summary: "感情の波が深く繊細。外界のエネルギーをスポンジのように吸収する。家族や身近な人への強い愛着と保護本能を持つ。",
+    need: "安全な居場所と深い感情的つながり",
+    caution: "感情が過敏になりやすく、依存や操作的な面が出ることも。"
+  },
+  NATAL_MOON_LEO: {
+    summary: "感情を豊かに表現し、愛され認められることで心が満たされる。情熱的で劇的な感情表現を持つ。",
+    need: "賞賛と特別扱い",
+    caution: "自己中心的な感情表現が周囲を疲弊させることがある。"
+  },
+  NATAL_MOON_VIRGO: {
+    summary: "感情を分析・整理することで安心する。細かいことが気になり、心配性な面がある。奉仕することで安定感を得る。",
+    need: "秩序と役に立てる環境",
+    caution: "完璧主義から自他への批判が強まりやすい。"
+  },
+  NATAL_MOON_LIBRA: {
+    summary: "調和と美しさの中で心が安らぐ。人間関係のバランスに敏感で、対立を避け穏やかな環境を求める。",
+    need: "公平さと美しい人間関係",
+    caution: "本音を言えず、他者に合わせすぎる傾向がある。"
+  },
+  NATAL_MOON_SCORPIO: {
+    summary: "感情の深さと強さが際立つ。表面に出さないが内側では激しい感情が渦巻く。深い信頼関係を強く求める。",
+    need: "深い感情的融合と信頼",
+    caution: "嫉妬や支配欲が感情を歪めることがある。"
+  },
+  NATAL_MOON_SAGITTARIUS: {
+    summary: "感情が楽観的で開放的。自由を感じることで心が躍る。理想と冒険心が感情の原動力になる。",
+    need: "自由と新しい経験",
+    caution: "感情的責任から逃げようとすることがある。"
+  },
+  NATAL_MOON_CAPRICORN: {
+    summary: "感情を内側に抑え、責任と目標達成で安定感を得る。感情より現実を優先しがちな傾向がある。",
+    need: "達成感と社会的認知",
+    caution: "感情を抑圧しすぎて孤独になりやすい。"
+  },
+  NATAL_MOON_AQUARIUS: {
+    summary: "感情を客観的・知的に処理する。仲間との連帯感や理想の実現に心が動く。感情的距離を置きたがる。",
+    need: "自由と仲間との連帯",
+    caution: "感情的なつながりが希薄になりやすい。"
+  },
+  NATAL_MOON_PISCES: {
+    summary: "感情が深く境界なく広がる。他者の感情と自分の感情の境界が曖昧になりやすい繊細な感受性を持つ。",
+    need: "スピリチュアルなつながりと創造的表現",
+    caution: "現実逃避や感情的な混乱に陥りやすい。"
+  },
+
+  // ===== ハウスの意味 =====
+  HOUSE_1: { title: "第1ハウス", theme: "自己・外見・スタート", desc: "あなた自身の本質、第一印象、新しい始まりを司る場所。ASCと同じ方向性。" },
+  HOUSE_2: { title: "第2ハウス", theme: "お金・価値観・才能", desc: "収入、物質的豊かさ、自分が本当に大切にしているものを表す。" },
+  HOUSE_3: { title: "第3ハウス", theme: "コミュニケーション・学習・兄弟", desc: "日常の会話、学習、近隣との関係、移動を司る。" },
+  HOUSE_4: { title: "第4ハウス", theme: "家族・ルーツ・心の安らぎ", desc: "家族、出身、心の奥にある安全基地を表す。" },
+  HOUSE_5: { title: "第5ハウス", theme: "恋愛・創造・楽しみ", desc: "恋愛、子供、趣味、自己表現の喜びを司る。" },
+  HOUSE_6: { title: "第6ハウス", theme: "仕事・健康・奉仕", desc: "日常業務、健康管理、他者への奉仕を表す。" },
+  HOUSE_7: { title: "第7ハウス", theme: "パートナー・対人関係", desc: "結婚、重要な一対一の関係、公的なパートナーシップを司る。" },
+  HOUSE_8: { title: "第8ハウス", theme: "変容・深いつながり・再生", desc: "人生の大きな転換点、他者との深い共有、死と再生のテーマを表す。" },
+  HOUSE_9: { title: "第9ハウス", theme: "哲学・旅・高等教育", desc: "人生の意味を探す旅、海外、哲学・宗教・高等教育を司る。" },
+  HOUSE_10: { title: "第10ハウス", theme: "天職・社会的地位", desc: "仕事での成就、社会での役割、目指す姿を表す。MCと同じ方向性。" },
+  HOUSE_11: { title: "第11ハウス", theme: "友人・仲間・未来の希望", desc: "仲間との連帯、社会への貢献、未来の夢や理想を司る。" },
+  HOUSE_12: { title: "第12ハウス", theme: "隠れた場所・霊性・解放", desc: "見えない部分、一人で向き合うこと、魂の深みを表す。" },
+
+  // ===== 逆行×ハウス =====
+  RETROGRADE_MERCURY: {
+    general: "水星逆行中は、コミュニケーション・移動・契約にトラブルが起きやすい時期。",
+    byHouse: {
+      1: "自分の発言や見せ方を見直すタイミング。過去の自己イメージと向き合う機会。",
+      2: "お金や価値観の見直しを促される。衝動買いや契約の更新は慎重に。",
+      3: "メッセージの伝え間違いや移動のトラブルに注意。過去のコミュニケーションを振り返る。",
+      4: "家族や家に関する話し合いを丁寧に。実家や過去のことが浮上しやすい。",
+      5: "恋愛や創作活動で誤解が生じやすい。過去の恋人と再会することも。",
+      6: "仕事や健康管理の見直し期間。契約や手続きに不備が出やすい。",
+      7: "パートナーとの行き違いに注意。過去の関係が再浮上することも。",
+      8: "共有のお金や契約のトラブルに注意。深い自己分析の機会。",
+      9: "旅行計画の変更や勉強の中断が起きやすい。信念を見直す時期。",
+      10: "仕事上の誤解や評判の問題に注意。過去の実績を再評価する機会。",
+      11: "友人関係のすれ違いに注意。過去の仲間との再会がある。",
+      12: "内向きになり、自己と深く向き合う時期。休息を大切に。"
+    }
+  },
+  RETROGRADE_VENUS: {
+    general: "金星逆行中は、恋愛・人間関係・美意識・お金の価値観を見直す期間。",
+    byHouse: {
+      1: "自分の魅力や美意識の棚卸し。外見を大きく変えたくなるが慎重に。",
+      2: "お金の使い方や価値観を根本から見直す機会。衝動買いに注意。",
+      3: "近所の人や兄弟との関係を見直す。言葉による愛情表現を再考。",
+      4: "家族関係の見直し。家のリフォームや引越しは時期を選んで。",
+      5: "恋愛の価値観の見直し。元カレ・元カノが現れやすい時期。",
+      6: "職場の人間関係や健康習慣の見直し。",
+      7: "パートナーシップの根本を見直す大切な時期。",
+      8: "深い感情的なつながりと向き合う時期。",
+      9: "海外や哲学的なテーマにおける価値観の変化。",
+      10: "キャリアと自分の美学・価値観との一致を問い直す。",
+      11: "友人関係の価値観を見直す。グループへの帰属意識の変化。",
+      12: "隠れた欲求や美意識の深層と向き合う内省の時期。"
+    }
+  },
+  RETROGRADE_MARS: {
+    general: "火星逆行中は、行動力・欲求・エネルギーの方向性を見直す時期。新規スタートより内側の整理を優先する。",
+    byHouse: {
+      1: "行動パターンや自己主張の仕方を根本から見直す。",
+      2: "お金を稼ぐためのエネルギーの使い方を見直す。",
+      3: "言葉や議論のスタイルを振り返る。",
+      4: "家族や家のことへのエネルギーの向け方を見直す。",
+      5: "恋愛や趣味へのエネルギーを内省する時期。",
+      6: "仕事や健康管理のアプローチを再考する。",
+      7: "対人関係での自己主張の仕方を見直す。",
+      8: "欲求の深層と向き合う。",
+      9: "行動の哲学・信念を見直す時期。",
+      10: "野心やキャリアへのアプローチを根本から見直す。",
+      11: "仲間との関わり方・目標への取り組みを見直す。",
+      12: "隠れた怒りや抑圧されたエネルギーと向き合う。"
+    }
+  },
+  RETROGRADE_JUPITER: {
+    general: "木星逆行中は、拡大よりも内なる成長と知恵の深化の時期。内側の豊かさを育てる機会。",
+    byHouse: {
+      1: "自己成長の振り返りと内省。",
+      2: "真の豊かさとは何かを問い直す。",
+      3: "学びを深め、知恵を内側に蓄積する時期。",
+      4: "家族・ルーツからの精神的な成長。",
+      5: "内なる喜びと創造力を育てる時期。",
+      6: "健康と仕事への感謝を深める。",
+      7: "パートナーシップから学ぶ内なる成長。",
+      8: "変容と再生の内なるプロセスを歩む。",
+      9: "真の哲学・信念を内側で深める時期。",
+      10: "外的な成功より内なる使命感を問い直す。",
+      11: "真の仲間と理想の在り方を見直す。",
+      12: "精神的な豊かさと内なる癒しの時期。"
+    }
+  },
+  RETROGRADE_SATURN: {
+    general: "土星逆行中は、責任・規律・構造を内側から見直す時期。過去の課題と向き合い、土台を固め直す機会。",
+    byHouse: {
+      1: "自己責任の在り方を根本から問い直す。",
+      2: "お金と安定に対する責任感を見直す。",
+      3: "コミュニケーションの責任と誠実さを振り返る。",
+      4: "家族・家に対する責任と向き合う。",
+      5: "自己表現と創造への真剣な取り組みを問い直す。",
+      6: "健康管理と仕事への規律を見直す。",
+      7: "パートナーシップでの責任を振り返る。",
+      8: "変容と再生への覚悟を問われる時期。",
+      9: "信念と哲学の真剣度を問い直す。",
+      10: "キャリアと社会的責任を内側から再構築する。",
+      11: "社会への貢献と仲間への責任を見直す。",
+      12: "孤独と向き合い、魂の成熟を深める時期。"
+    }
+  }
+};
+
+// ── 4. エレメント・クオリティ分布分析 ──────────────────────
+function analyzeDistribution(chart) {
+  const PERSONAL_PLANETS = ["Sun","Moon","Mercury","Venus","Mars"];
+  const planets = chart.planets.filter(p => PERSONAL_PLANETS.includes(p.name));
+
+  const elementCount = { fire:0, earth:0, air:0, water:0 };
+  const qualityCount = { cardinal:0, fixed:0, mutable:0 };
+
+  planets.forEach(p => {
+    if (p.element) elementCount[p.element]++;
+    if (p.quality) qualityCount[p.quality]++;
+  });
+
+  // Chart.js用レーダーチャートデータ
+  const radarData = {
+    labels: ["火（行動・情熱）","地（現実・安定）","風（知性・社交）","水（感情・直感）"],
+    datasets: [{
+      label: "エレメント分布",
+      data: [elementCount.fire, elementCount.earth, elementCount.air, elementCount.water],
+      backgroundColor: "rgba(200,120,80,0.2)",
+      borderColor: "rgba(200,120,80,0.8)",
+      borderWidth: 2,
+      pointBackgroundColor: ["#e05030","#50a030","#c0a020","#2060c0"]
+    }]
+  };
+
+  // 支配的エレメントとコンビネーション
+  const sorted = Object.entries(elementCount).sort((a,b)=>b[1]-a[1]);
+  const dominant = sorted[0][0];
+  const secondary = sorted[1][0];
+
+  const comboKey = `COMBO_${dominant.toUpperCase()}_${secondary.toUpperCase()}`;
+  const comboText = DICT[comboKey] || null;
+
+  return {
+    elementCount,
+    qualityCount,
+    dominant,
+    secondary,
+    comboText,
+    radarData,
+    qualityRadar: {
+      labels: ["活動宮（開拓・先導）","不動宮（持続・集中）","柔軟宮（適応・変化）"],
+      datasets: [{
+        label: "クオリティ分布",
+        data: [qualityCount.cardinal, qualityCount.fixed, qualityCount.mutable],
+        backgroundColor: "rgba(100,120,200,0.2)",
+        borderColor: "rgba(100,120,200,0.8)",
+        borderWidth: 2
+      }]
+    }
+  };
+}
+
+// ── 5. 辞書引き鑑定メイン関数 ────────────────────────────────
+function generateReading(chart) {
+  const get = name => chart.planets.find(p => p.name === name);
+  const sun = get("Sun"), moon = get("Moon"), merc = get("Mercury");
+  const ven = get("Venus"), mars = get("Mars");
+  const asc = chart.angles?.asc;
+  const mc  = chart.angles?.mc;
+
+  // 太陽鑑定
+  const sunKey  = `NATAL_SUN_${SIGN_KEYS[sun?.sign] || ""}`;
+  const moonKey = `NATAL_MOON_${SIGN_KEYS[moon?.sign] || ""}`;
+  const sunData  = DICT[sunKey];
+  const moonData = DICT[moonKey];
+
+  // エレメント分布
+  const dist = analyzeDistribution(chart);
+
+  // 性格鑑定テキスト組み立て
+  const personality = buildPersonalityText(sun, moon, merc, ven, mars, asc, sunData, moonData, dist, chart);
+
+  // 運命鑑定
+  const destiny = buildDestinyText(chart, dist);
+
+  // 使命鑑定
+  const mission = buildMissionText(chart, dist);
+
+  // 出生時間不明の場合の月サイン警告
+  const moonWarning = buildMoonWarning(moon, chart.birthTimeKnown);
+
+  return {
+    personality,
+    destiny,
+    mission,
+    distribution: dist,
+    moonWarning,
+    rawData: { sunData, moonData }
+  };
+}
+
+// ── 6. 性格テキスト組み立て ──────────────────────────────────
+function buildPersonalityText(sun, moon, merc, ven, mars, asc, sunData, moonData, dist, chart) {
+  if (!sun || !moon) return "データが不足しています。";
+
+  const sunEl = DICT[`ELEMENT_${sun.element?.toUpperCase()}`];
+  const moonEl = DICT[`ELEMENT_${moon.element?.toUpperCase()}`];
+
+  let text = "";
+
+  // 太陽
+  const sunH = (chart.birthTimeKnown && sun.house) ? `${sun.house}ハウス（${DICT[`HOUSE_${sun.house}`]?.theme}）` : "";
+  text += `あなたの太陽は${sun.signJa || sun.sign}${sunH ? "・" + sunH : ""}にあります。`;
+  if (sunData) {
+    text += sunData.summary + "\n";
+    if (sunData.strength?.length) text += `得意なこと：${sunData.strength.join("・")}\n`;
+    if (sunData.weakness?.length) text += `気をつけたいこと：${sunData.weakness.join("・")}\n`;
+  }
+
+  // 月
+  const moonH = (chart.birthTimeKnown && moon.house) ? `${moon.house}ハウス（${DICT[`HOUSE_${moon.house}`]?.theme}）` : "";
+  text += `\n内面では、月は${moon.signJa || moon.sign}${moonH ? "・" + moonH : ""}にあります。`;
+  if (moonData) {
+    text += moonData.summary + "\n";
+    text += `心が求めているもの：${moonData.need}\n`;
+  }
+
+  // エレメントコンビネーション（太陽×月）
+  if (dist.comboText) {
+    text += `\n【太陽と月のエレメントの組み合わせ】\n`;
+    text += `「${dist.comboText.title}」\n`;
+    text += dist.comboText.summary + "\n";
+    if (dist.comboText.caution) text += `注意点：${dist.comboText.caution}\n`;
+  }
+
+  // 水星・金星・火星
+  if (merc) {
+    const mercH = (chart.birthTimeKnown && merc.house) ? `${merc.house}H` : "";
+    text += `\n思考・話し方：水星${merc.signJa || merc.sign}${mercH}`;
+    text += merc.retrograde ? "（逆行中）" : "";
+    text += "。";
+  }
+  if (ven) {
+    const venH = (chart.birthTimeKnown && ven.house) ? `${ven.house}H` : "";
+    text += `愛情・美意識：金星${ven.signJa || ven.sign}${venH}。`;
+  }
+  if (mars) {
+    const marsH = (chart.birthTimeKnown && mars.house) ? `${mars.house}H` : "";
+    text += `行動・情熱：火星${mars.signJa || mars.sign}${marsH}`;
+    text += mars.retrograde ? "（逆行中）" : "";
+    text += "。";
+  }
+
+  // ASC
+  if (asc && chart.birthTimeKnown) {
+    const ascEl = asc.sign ? (
+      ["Aries","Leo","Sagittarius"].includes(asc.sign) ? "エネルギッシュで行動的な" :
+      ["Taurus","Virgo","Capricorn"].includes(asc.sign) ? "落ち着いていて信頼感のある" :
+      ["Gemini","Libra","Aquarius"].includes(asc.sign) ? "明るくて話しやすい" :
+      "ミステリアスで優しそうな"
+    ) : "";
+    text += `\n第一印象は「${ascEl}人」。これは上昇星座（${asc.signJa || asc.sign}）によるものです。`;
+  }
+
+  return text;
+}
+
+// ── 7. 運命テキスト ──────────────────────────────────────────
+function buildDestinyText(chart, dist) {
+  const get = name => chart.planets.find(p => p.name === name);
+  const sat = get("Saturn"), plu = get("Pluto"), ura = get("Uranus");
+  let text = "";
+
+  if (sat) {
+    const satH = (chart.birthTimeKnown && sat.house) ?
+      `${sat.house}ハウス（${DICT[`HOUSE_${sat.house}`]?.theme}）` : "";
+    const satEl = DICT[`ELEMENT_${sat.element?.toUpperCase()}`];
+    text += `土星は${sat.signJa || sat.sign}${satH ? "・" + satH : ""}にあります。`;
+    text += sat.retrograde ? "（逆行中）" : "";
+    if (satEl) text += `この土星が示す人生のテーマは「${satEl.title}」の領域での責任と成長です。`;
+    text += `${satH}の分野で、コツコツと誠実に取り組み続けることが、あなたの人生を豊かにしていきます。\n`;
+  }
+
+  if (plu) {
+    text += `\n冥王星は${plu.signJa || plu.sign}にあります。`;
+    text += "これは同じ時代を生きる人々が共通して担う「時代の変容テーマ」を表しています。人生の大きな転換点で、根っこから変わるような経験をすることがあるかもしれませんが、それは以前の自分では想像もできなかった力と深みをもたらす脱皮のようなものです。\n";
+  }
+
+  // ハードアスペクト
+  const hardAsps = chart.aspects?.filter(a => ["square","opp"].includes(a.type)).slice(0,3) || [];
+  if (hardAsps.length) {
+    text += "\n【人生で繰り返し現れるテーマ】\n";
+    hardAsps.forEach(asp => {
+      const p1 = chart.planets.find(p=>p.name===asp.p1);
+      const p2 = chart.planets.find(p=>p.name===asp.p2);
+      if (!p1||!p2) return;
+      const typeWord = asp.type === "square" ? "心の中の綱引き" : "人間関係に映し出されるテーマ";
+      text += `${p1.nameJa||p1.name}と${p2.nameJa||p2.name}の「${typeWord}」：`;
+      text += `このふたつのエネルギーが時にぶつかり合うことで、あなたは深く成長していきます。\n`;
+    });
+  }
+
+  return text || "データが不足しています。";
+}
+
+// ── 8. 使命テキスト ──────────────────────────────────────────
+function buildMissionText(chart, dist) {
+  const get = name => chart.planets.find(p => p.name === name);
+  const jup = get("Jupiter");
+  const mc  = chart.angles?.mc;
+  let text = "";
+
+  if (jup) {
+    const jupH = (chart.birthTimeKnown && jup.house) ?
+      `${jup.house}ハウス（${DICT[`HOUSE_${jup.house}`]?.theme}）` : "";
+    const jupEl = DICT[`ELEMENT_${jup.element?.toUpperCase()}`];
+    text += `木星は${jup.signJa || jup.sign}${jupH ? "・" + jupH : ""}にあります。`;
+    if (jupEl) {
+      const jupWord = {
+        ELEMENT_FIRE: "自分の情熱や個性を思いっきり表現するところに、幸運と才能の花が咲きやすい",
+        ELEMENT_EARTH: "地に足のついた努力を続けるところに、豊かさと信頼が集まってくる",
+        ELEMENT_AIR: "人と話したり、知識を共有したりするところに、面白い縁とチャンスが生まれやすい",
+        ELEMENT_WATER: "人の気持ちに寄り添い、心のケアをするところに、深いやりがいと才能がある"
+      }[`ELEMENT_${jup.element?.toUpperCase()}`];
+      if (jupWord) text += jupWord + "傾向があります。\n";
+    }
+  }
+
+  if (mc && chart.birthTimeKnown) {
+    const mcEl = ["Aries","Leo","Sagittarius"].includes(mc.sign) ? "fire" :
+                 ["Taurus","Virgo","Capricorn"].includes(mc.sign) ? "earth" :
+                 ["Gemini","Libra","Aquarius"].includes(mc.sign) ? "air" : "water";
+    const mcRole = {
+      fire: "情熱やエネルギーで周りを引っ張るリーダー的な役割",
+      earth: "地道な努力と確かな技術で社会に貢献する役割",
+      air: "知識や言葉を使って人と人をつなぐ役割",
+      water: "感性や共感力で人の心に寄り添う役割"
+    }[mcEl];
+    text += `\n天職の方向性は「${mcRole}」（${mc.signJa||mc.sign}MCより）。\n`;
+  }
+
+  // ソフトアスペクト
+  const softAsps = chart.aspects?.filter(a => ["trine","sext","conj"].includes(a.type)).slice(0,3) || [];
+  if (softAsps.length) {
+    text += "\n【生まれつき持っている自然な才能】\n";
+    softAsps.forEach(asp => {
+      const p1 = chart.planets.find(p=>p.name===asp.p1);
+      const p2 = chart.planets.find(p=>p.name===asp.p2);
+      if (!p1||!p2) return;
+      const typeWord = asp.type === "conj" ? "ひとつに溶け合った強力なエネルギー" :
+                       asp.type === "trine" ? "意識せずとも流れる才能の回路" : "活かせば倍になる助け合いの関係";
+      text += `${p1.nameJa||p1.name}と${p2.nameJa||p2.name}：「${typeWord}」。\n`;
+    });
+  }
+
+  text += "\n大切なのは、あなたがすでに持っているものを信じることです。今の自分の延長線上に、使命へとつながる道が続いています。";
+  return text;
+}
+
+// ── 9. 出生時間不明時の月サイン警告 ────────────────────────────
+function buildMoonWarning(moon, birthTimeKnown) {
+  if (birthTimeKnown) return null;
+
+  // 月は約13°/日で動く。サインの境界付近（0-3°または27-30°）は警告を出す
+  const BOUNDARY_DEG = 3;
+  if (!moon) return null;
+
+  if (moon.deg < BOUNDARY_DEG) {
+    const prevSignIndex = (moon.signIndex - 1 + 12) % 12;
+    const SIGNS_JA = ["牡羊座","牡牛座","双子座","蟹座","獅子座","乙女座","天秤座","蠍座","射手座","山羊座","水瓶座","魚座"];
+    return {
+      type: "boundary_warning",
+      message: `🌙 月は${moon.signJa||moon.sign}${moon.deg.toFixed(1)}°にあります（正午設定）。出生時刻によっては前のサイン「${SIGNS_JA[prevSignIndex]}」の可能性があります。正確なサインを知るには出生時間が必要です。`
+    };
+  }
+  if (moon.deg > (30 - BOUNDARY_DEG)) {
+    const nextSignIndex = (moon.signIndex + 1) % 12;
+    const SIGNS_JA = ["牡羊座","牡牛座","双子座","蟹座","獅子座","乙女座","天秤座","蠍座","射手座","山羊座","水瓶座","魚座"];
+    return {
+      type: "boundary_warning",
+      message: `🌙 月は${moon.signJa||moon.sign}${moon.deg.toFixed(1)}°にあります（正午設定）。出生時刻によっては次のサイン「${SIGNS_JA[nextSignIndex]}」の可能性があります。正確なサインを知るには出生時間が必要です。`
+    };
+  }
+
+  return {
+    type: "time_unknown",
+    message: "⏰ 出生時間不明のため、ASC・MC・ハウス配置は表示していません。出生時間がわかると、より詳細な鑑定が可能になります。"
+  };
+}
+
+// ── 10. 逆行通知ロジック ──────────────────────────────────────
+function analyzeRetrogrades(natalChart, transitPlanets) {
+  const results = [];
+
+  transitPlanets.forEach(tp => {
+    if (!tp.retrograde) return;
+
+    const dictKey = `RETROGRADE_${tp.name.toUpperCase()}`;
+    const retroDict = DICT[dictKey];
+    if (!retroDict) return;
+
+    // ネイタルチャートのどのハウスに逆行中の惑星がいるか
+    let affectedHouse = null;
+    if (natalChart.birthTimeKnown && natalChart.houseCusps) {
+      affectedHouse = getHouseFromCusps(tp.lon, natalChart.houseCusps);
+    }
+
+    const houseInfo = affectedHouse ? DICT[`HOUSE_${affectedHouse}`] : null;
+    const advice = affectedHouse ? retroDict.byHouse[affectedHouse] : retroDict.general;
+
+    results.push({
+      planet: tp.nameJa || tp.name,
+      retrograde: true,
+      affectedHouse,
+      houseTheme: houseInfo?.theme || null,
+      general: retroDict.general,
+      advice,
+      display: `【${tp.nameJa||tp.name}逆行】${houseInfo ? `あなたの${houseInfo.title}（${houseInfo.theme}）に影響：` : ""}${advice}`
+    });
+  });
+
+  return results;
+}
+
+function getHouseFromCusps(lon, cusps) {
+  const N = x => ((x%360)+360)%360;
+  for (let i=0; i<12; i++) {
+    const c1 = cusps[i];
+    const c2 = cusps[(i+1)%12];
+    const span = N(c2-c1);
+    const dist = N(lon-c1);
+    if (dist>=0 && dist<span) return i+1;
+  }
+  return 1;
+}
+
+
+
 // ========== CITY DB ==========
 const CDB=[
   {n:'札幌',k:'sapporo',lat:43.0618,lng:141.3545},{n:'仙台',k:'sendai',lat:38.2688,lng:140.8721},
@@ -586,250 +1320,106 @@ function makeSummary(chart,city){
 }
 
 
-async function generateReadings(chart,city){
-  const sum=makeSummary(chart,city);
-  const tn=chart.btk?'':'※出生時間不明のため、ASC・ハウスへの言及は控えること。';
+function generateReadings(chart,city){
+  // エンジン呼び出し
+  const result = generateReading(chart);
 
-  const prompt=
-    'あなたは30,000人以上を鑑定した西洋占星術師です。'+tn+'\n'
-   +'以下のホロスコープを読み解き、4項目を日本語で鑑定してください。\n'
-   +'\n【鑑定の書き方ルール】\n'
-   +'① 各項目400〜500文字\n'
-   +'② 専門用語（トライン・スクエア・オポジション・エレメント・モダリティ等）は使わない\n'
-   +'   → 代わりに日常語で表現する（例：トライン→「自然に流れる才能の流れ」、スクエア→「心の中の綱引き」）\n'
-   +'③ 天体配置を「星座×ハウス×星どうしの角度関係」の三重の意味で解釈する\n'
-   +'   例：太陽蟹座8ハウスに冥王星との緊張した角度がある場合→\n'
-   +'   「蟹座の深い感受性が、人生の大きな転換点や共有の場（8ハウス）で発揮される。\n'
-   +'   そこに冥王星との緊張した関係が加わることで、表面は穏やかでも内側では\n'
-   +'   激しい感情の渦を体験しやすく、それを乗り越えるたびに深みが増していく」\n'
-   +'④ 各星どうしの角度関係が具体的にどんな性格・才能・葛藤・人間関係パターンを生むかを書く\n'
-   +'   （「○○と○○が近い位置にあるので〜」「○○と○○が正反対の位置にあるので〜」など日常語で）\n'
-   +'⑤ 「〜かもしれません」「〜の傾向があります」など断定せず温かく\n'
-   +'⑥ 占星術を知らない人が読んでも、自分のことだと感じられる具体的な言葉で\n'
-   +'\n'+sum+'\n\n'
-   +'===性格===\n'
-   +'太陽・月・水星・金星・火星・ASCをサイン×ハウス×アスペクトで統合した人物像。\n'
-   +'各アスペクトがどんな具体的性格・才能・内的葛藤を生み出しているかを必ず書く。\n\n'
-   +'===運命===\n'
-   +'土星・冥王星・天王星をサイン×ハウス×アスペクトで読む人生テーマと試練。\n'
-   +'どんな場面でその試練が現れ、乗り越えることでどう変容するかを具体的に。\n\n'
-   +'===使命===\n'
-   +'木星・MC・ノード軸をサイン×ハウス×アスペクトで読む使命と才能の方向性。\n'
-   +'どんな仕事・役割・貢献の仕方でこの人が最も輝くかを具体的に。\n\n'
-   +'===現在の運勢===\n'
-   +'今日'+new Date().toLocaleDateString('ja-JP')+'時点のトランジット。\n'
-   +'現在の木星・土星・天王星がネイタルのどの天体・ハウスに触れているか、\n'
-   +'それが今どんな具体的な変化・チャンス・試練をもたらしているかを書く。';
-
-  function ext(text,key){
-    const re=new RegExp('==='+key+'===\\s*([\\s\\S]*?)(?====|$)');
-    const m=text.match(re);
-    return m?m[1].trim():'';
-  }
   function set(id,text){
-    document.getElementById(id).innerHTML=text
-      ?'<p>'+text.replace(/\n/g,'<br>')+'</p>'
-      :'<p style="color:#c86888;font-size:11px">取得できませんでした</p>';
+    document.getElementById(id).innerHTML = text
+      ? '<p>'+text.replace(/\n/g,'<br>')+'</p>'
+      : '<p style="color:#c86888;font-size:11px">データなし</p>';
   }
 
-  try{
-    const res=await fetch('/api/reading',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({prompt})
-    });
-    const data=await res.json();
-    const raw=data?.text||'';
-    if(!raw)throw new Error('empty');
-    set('rcp',ext(raw,'性格'));
-    set('rcd',ext(raw,'運命'));
-    set('rcm',ext(raw,'使命'));
-    set('tr',ext(raw,'現在の運勢'));
-  }catch(err){
-    console.error('API:',err);
-    // ── フォールバック：専門用語なし・誰にでも伝わる言葉で ──
-    const g=n=>chart.planets.find(p=>p.name===n);
-    const sun=g('Sun'),moon=g('Moon'),merc=g('Mercury'),ven=g('Venus'),
-          mars=g('Mars'),jup=g('Jupiter'),sat=g('Saturn'),plu=g('Pluto');
-    const asc=chart.asc,mc_=chart.mc;
+  set('rcp', result.personality);
+  set('rcd', result.destiny);
+  set('rcm', result.mission);
 
-    // ハウスをわかりやすい言葉で
-    const HWORD={
-      1:'「自分自身・見た目・新しいスタート」',
-      2:'「お金・もの・自分が大切にしているもの」',
-      3:'「話すこと・学ぶこと・身近な人間関係」',
-      4:'「家族・ふるさと・心の奥にある安らぎ」',
-      5:'「好きなこと・恋愛・自由に楽しむこと」',
-      6:'「毎日の仕事・体のこと・誰かのためにすること」',
-      7:'「パートナー・大切な人・一対一の関係」',
-      8:'「人生の大きな転換点・深いつながり・隠れた力」',
-      9:'「旅・学び・人生の意味を探すこと」',
-      10:'「仕事での夢・社会での役割・目指す姿」',
-      11:'「友だち・仲間・未来への希望」',
-      12:'「見えない部分・ひとりで向き合うこと・魂の深み」'
-    };
-
-    // アスペクトを日常語で説明
-    function aspTalk(planetName){
-      const asps=chart.aspects.filter(a=>a.p1.name===planetName||a.p2.name===planetName).slice(0,2);
-      if(!asps.length)return '';
-      return asps.map(a=>{
-        const other=a.p1.name===planetName?a.p2:a.p1;
-        const oName=PJ[other.name];
-        const oSign=other.sign.name;
-        const oHW=other.house?HWORD[other.house]:'';
-        const talk={
-          conj: oSign+'の'+oName+oHW+'と、まるで双子のように性質がひとつに溶け合っています。切っても切れないほど深く結びついた組み合わせで、お互いの力がいっしょに働きます',
-          trine: oSign+'の'+oName+oHW+'と、自然にうまくいく関係にあります。まるで川が海へと流れるように、このふたつの力は邪魔されることなくスムーズにつながっています。意識しなくても発揮できる、生まれついての才能です',
-          sext:  oSign+'の'+oName+oHW+'と、上手に助け合える関係にあります。少し意識して動くだけで、ふたつの力がかけ算のように大きくなります',
-          square:oSign+'の'+oName+oHW+'と、ときにぶつかり合う関係にあります。「こうしたい」と「ああしたい」が心の中で綱引きをするような感覚があるかもしれません。でも、この緊張こそがあなたを強くします。この葛藤を乗り越えた先に、大きな成長があります',
-          opp:   oSign+'の'+oName+oHW+'と、正反対の位置にあります。「両方とも大事なのに、どっちかを選ばなければならない」と感じることがあるかもしれません。あるいは、自分とは正反対のタイプの人に引き寄せられることも。このふたつのバランスをとることが、あなたの人生の大きなテーマのひとつです'
-        };
-        return talk[a.asp.type]||oSign+'の'+oName+'とつながりがあります';
-      }).join('。さらに、');
+  // 現在の運勢（逆行情報）
+  const today = new Date().toLocaleDateString('ja-JP');
+  const retroPlanets = chart.planets.filter(p=>p.retrograde);
+  let transitText = '今（'+today+'）の星の流れ：';
+  if(retroPlanets.length){
+    const retroResults = analyzeRetrogrades(chart, retroPlanets);
+    if(retroResults.length){
+      transitText += '\n' + retroResults.map(r=>r.display).join('\n');
+    } else {
+      transitText += '現在、あなたのチャートに直接影響する逆行はありません。じっくり自分のペースで進める時期です。';
     }
+  } else {
+    transitText += '現在、逆行中の天体はあなたのチャートに大きな影響を与えていません。星の流れに乗って、自分のペースで前進できる時期です。';
+  }
+  set('tr', transitText);
 
-    // 太陽サインの一般向け説明
-    const sunWord={
-      fire:'エネルギーにあふれ、自分を表に出すことで生き生きとする',
-      earth:'じっくりと、ひとつひとつ確実に積み上げていくことが得意',
-      air:'人と話したり、知識を広げたりすることに喜びを感じる',
-      water:'人の気持ちに敏感で、その場の空気をすぐに読み取れる'
-    }[sun.sign.el];
-
-    // 月サインの一般向け説明
-    const moonWord={
-      fire:'気持ちが動くとすぐ行動に出る、素直で情熱的な心',
-      earth:'感情をじっくり噛みしめてから動く、安定を大切にする心',
-      air:'気持ちを言葉にして整理することで楽になる、考える心',
-      water:'周りの感情をそのまま受け取ってしまうほど、繊細で深い心'
-    }[moon.sign.el];
-
-    const sunH=sun.house?sun.house+'ハウス（'+HWORD[sun.house].replace(/「|」/g,'')+'）の分野':'';
-    const moonH=moon.house?moon.house+'ハウス（'+HWORD[moon.house].replace(/「|」/g,'')+'）の分野':'';
-    const mercH=merc.house?merc.house+'ハウスの分野':'';
-    const venH=ven.house?ven.house+'ハウスの分野':'';
-    const marsH=mars.house?mars.house+'ハウスの分野':'';
-
-    const sunAsp=aspTalk('Sun');
-    const moonAsp=aspTalk('Moon');
-    const mercAsp=aspTalk('Mercury');
-    const venAsp=aspTalk('Venus');
-    const marsAsp=aspTalk('Mars');
-
-    const ascWord=asc?{'fire':'エネルギッシュで行動的な人','earth':'落ち着いていて信頼感のある人','air':'明るくて話しやすい人','water':'ミステリアスで優しそうな人'}[asc.sign.el]:'';
-
-    const p1=
-      'あなたの太陽は'+sun.sign.name+'、'+sunH+'にあります。'+sunWord+'タイプです。'
-     +(sunAsp?'\n太陽は、'+sunAsp+'。':'')
-     +'\n\n心の内側を見ると、月は'+moon.sign.name+'、'+moonH+'にあります。'+moonWord+'を持っています。'
-     +(moonAsp?'\n月は、'+moonAsp+'。':'')
-     +'\n\n頭の使い方・話し方は水星'+merc.sign.name+'（'+mercH+'）が教えてくれます。'
-     +(mercAsp?'水星は、'+mercAsp+'。':'')
-     +'愛情の伝え方や「美しいな」と感じるセンスは金星'+ven.sign.name+'（'+venH+'）が表しています。'
-     +(venAsp?'金星は、'+venAsp+'。':'')
-     +'やる気や行動力のスタイルは火星'+mars.sign.name+'（'+marsH+'）に出ています。'
-     +(marsAsp?'火星は、'+marsAsp+'。':'')
-     +(asc?'\n\nまた、あなたは第一印象として「'+ascWord+'」と見られやすい傾向があります。これは上昇星座（'+asc.sign.name+'）によるものです。':'');
-
-    // 運命
-    const satH=sat.house?sat.house+'ハウス（'+HWORD[sat.house].replace(/「|」/g,'')+'）の分野':'';
-    const satWord={
-      fire:'「やりたいことをやる」「自分らしくいる」という部分で、思うようにいかないと感じることが多いかもしれません。でもその壁を乗り越えるたびに、本当の自信が育ちます',
-      earth:'お金・仕事・毎日の生活といった現実的な部分で、コツコツと努力を求められます。「すぐに報われない」と感じることもありますが、時間をかけて築いたものは絶対に崩れません',
-      air:'「うまく伝わらない」「気持ちが届かない」と感じる場面があるかもしれません。でも、その経験が言葉の力を磨き、やがて誰よりも深いコミュニケーションができるようになります',
-      water:'家族のこと、感情のこと、心の奥にある部分で向き合わなければならないテーマがあります。それはときに重く感じますが、その経験がほかの誰にもできない深い人間理解を育てます'
-    }[sat.sign.el];
-    const satAsp=aspTalk('Saturn');
-    const pluAsp=aspTalk('Pluto');
-    const hardAsps=chart.aspects.filter(a=>['square','opp'].includes(a.asp.type)).slice(0,2);
-    let hardDesc='';
-    if(hardAsps.length){
-      hardDesc='\nまた、星の配置を見ると、'
-        +hardAsps.map(a=>PJ[a.p1.name]+'（'+a.p1.sign.name+'）と'+PJ[a.p2.name]+'（'+a.p2.sign.name+'）').join('、')
-        +'のあいだに「葛藤を生みやすい角度」があります。これは「心のなかの引っ張り合い」として現れることが多いですが、その緊張を乗り越えるたびに、あなたはひとまわり大きくなっています。';
+  // 月サイン警告
+  if(result.moonWarning){
+    const ub = document.getElementById('ub');
+    if(ub){
+      ub.querySelector('.ubt').textContent = result.moonWarning.message;
+      ub.classList.add('show');
     }
-    const p2=
-      '土星は'+sat.sign.name+'、'+satH+'にあります。'+satWord+'。'
-     +(satAsp?'\n土星は、'+satAsp+'。':'')
-     +hardDesc
-     +'\n\n冥王星は'+plu.sign.name+'にあります。これはあなただけでなく、同じ時代に生まれた人々が共通して持つ「時代のテーマ」を表しています。'
-     +(pluAsp?'冥王星は、'+pluAsp+'。人生の大きな転換点で、根っこから変わるような経験をすることがあるかもしれません。':'人生の大きな節目で、根っこから変わるような経験をすることがあるかもしれません。')
-     +'\nそれは怖いことではなく、より本物の自分に近づくための脱皮のようなものです。乗り越えた先には、以前の自分では想像もできなかった力と深みが待っています。';
+  }
 
-    // 使命
-    const jupH=jup.house?jup.house+'ハウス（'+HWORD[jup.house].replace(/「|」/g,'')+'）の分野':'';
-    const jupWord={
-      fire:'自分の情熱や個性を思いっきり表現するところに、幸運と才能の花が咲きやすい',
-      earth:'地に足のついた努力を続けるところに、豊かさと信頼が集まってくる',
-      air:'人と話したり、知識を共有したりするところに、面白い縁とチャンスが生まれやすい',
-      water:'人の気持ちに寄り添い、心のケアをするところに、深いやりがいと才能がある'
-    }[jup.sign.el];
-    const jupAsp=aspTalk('Jupiter');
-    const softAsps=chart.aspects.filter(a=>['trine','sext','conj'].includes(a.asp.type)).slice(0,2);
-    let softDesc='';
-    if(softAsps.length){
-      softDesc='\n生まれつきスムーズに発揮できる才能として、'
-        +softAsps.map(a=>PJ[a.p1.name]+'と'+PJ[a.p2.name]+'が自然につながっている').join('、')
-        +'という星の流れがあります。これらは「頑張らなくてもできてしまうこと」で、あなたにとっては当たり前すぎて気づきにくいかもしれませんが、他の人には簡単にはできない才能です。';
+  // エレメント分布（レーダーチャート）
+  renderDistribution(result.distribution);
+}
+
+function renderDistribution(dist){
+  const cv=document.getElementById('dist-chart');
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,cx=W/2,cy=H/2;
+  const R=Math.min(cx,cy)-30;
+  const labels=['火','地','風','水'];
+  const colors=['#e05030','#50a030','#c0a020','#2060c0'];
+  const vals=dist.radarData.datasets[0].data;
+  const max=5;
+  const N=4;
+  ctx.clearRect(0,0,W,H);
+  // グリッド
+  for(let ring=1;ring<=max;ring++){
+    ctx.beginPath();
+    for(let i=0;i<N;i++){
+      const a=i*2*Math.PI/N-Math.PI/2;
+      const r=R*ring/max;
+      if(i===0)ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
+      else ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
     }
-    const mcWord=mc_?{'fire':'情熱やエネルギーで周りを引っ張るリーダー的な役割','earth':'地道な努力と確かな技術で社会に貢献する役割','air':'知識や言葉を使って人と人をつなぐ役割','water':'感性や共感力で人の心に寄り添う役割'}[mc_.sign.el]:'';
-    const p3=
-      '木星は'+jup.sign.name+'、'+jupH+'にあります。'+jupWord+'傾向があります。'
-     +(jupAsp?'\n木星は、'+jupAsp+'。':'')
-     +(mc_?'\n\n仕事や社会での役割について言えば、あなたは「'+mcWord+'」として力を発揮しやすいでしょう（'+mc_.sign.name+'の方向性より）。':'')
-     +softDesc
-     +'\n\n大切なのは、あなたがすでに持っているものを信じることです。「特別なことをしなければ」と思わなくていいのかもしれません。今の自分の延長線上に、使命へとつながる道が続いています。';
-
-    // 現在の運勢
-    const today=new Date().toLocaleDateString('ja-JP');
-    const sunTr={
-      fire:'新しい何かを始めたいというエネルギーが湧いてきやすい時期',
-      earth:'じっくり取り組んできたことが形になり始める時期',
-      air:'人との出会いや情報から、思わぬヒントやチャンスが生まれやすい時期',
-      water:'自分の内側と向き合うことで、大切なことに気づける時期'
-    }[sun.sign.el];
-    const satTr={
-      fire:'「本当にこの方向でいいのか」と立ち止まって考えてみると、新しい答えが見えてくる時期',
-      earth:'土台をしっかり固め直すことが、この先の安定につながる時期',
-      air:'伝え方やコミュニケーションのスタイルを見直すと、関係が好転しやすい時期',
-      water:'感情や家族、心の奥にあるテーマと、やさしく向き合う時期'
-    }[sat.sign.el];
-    const p4=
-      '今（'+today+'）の星の流れを見ると、'+sunTr+'かもしれません。'
-     +'\n一方で、'+satTr+'でもあります。'
-     +'\n\n星は急かしません。あなたのペースで、できることをひとつひとつ。今この瞬間にやれることを丁寧にやり続けることが、星の流れに乗る一番の近道です。';
-
-    set('rcp',p1);set('rcd',p2);set('rcm',p3);set('tr',p4);
+    ctx.closePath();
+    ctx.strokeStyle='rgba(200,160,80,0.2)';ctx.lineWidth=0.8;ctx.stroke();
+  }
+  // 軸線
+  for(let i=0;i<N;i++){
+    const a=i*2*Math.PI/N-Math.PI/2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a));
+    ctx.strokeStyle='rgba(200,160,80,0.3)';ctx.lineWidth=0.8;ctx.stroke();
+    // ラベル
+    const lr=R+16;
+    ctx.font='bold 11px serif';ctx.fillStyle=colors[i];ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(labels[i],cx+lr*Math.cos(a),cy+lr*Math.sin(a));
+    // 数値
+    ctx.font='10px monospace';ctx.fillStyle='rgba(200,160,80,0.7)';
+    ctx.fillText(vals[i],cx+(R*vals[i]/max+8)*Math.cos(a),cy+(R*vals[i]/max+8)*Math.sin(a));
+  }
+  // データポリゴン
+  ctx.beginPath();
+  for(let i=0;i<N;i++){
+    const a=i*2*Math.PI/N-Math.PI/2;
+    const r=R*vals[i]/max;
+    if(i===0)ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
+    else ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
+  }
+  ctx.closePath();
+  ctx.fillStyle='rgba(200,120,80,0.25)';ctx.fill();
+  ctx.strokeStyle='rgba(200,120,80,0.9)';ctx.lineWidth=2;ctx.stroke();
+  // 頂点
+  for(let i=0;i<N;i++){
+    const a=i*2*Math.PI/N-Math.PI/2;
+    const r=R*vals[i]/max;
+    ctx.beginPath();ctx.arc(cx+r*Math.cos(a),cy+r*Math.sin(a),3,0,2*Math.PI);
+    ctx.fillStyle=colors[i];ctx.fill();
   }
 }
 
-// ========== MAIN ==========
-let CChart=null;
-async function startReading(){
-  const dateVal=document.getElementById('idate').value;
-  const timeVal=document.getElementById('itime').value||'12:00';
-  const lat=parseFloat(document.getElementById('ilat').value);
-  const lng=parseFloat(document.getElementById('ilng').value);
-  const city=document.getElementById('icity').value||'出生地';
-  if(!dateVal){alert('生年月日を入力してください');return;}
-  if(isNaN(lat)||isNaN(lng)){alert('出生地を選択してください（都市名を入力してリストから選んでください）');return;}
-  const btn=document.getElementById('sbtn');btn.disabled=true;btn.textContent='⏳ 計算中…';
-  try{
-    const tzOff=parseFloat(document.getElementById('itz').value)||9;
-    CChart=calcChart(dateVal,timeVal,lat,lng,BTK,tzOff);
-    document.getElementById('HP').style.display='none';
-    document.getElementById('rp').classList.add('show');
-    window.scrollTo(0,0);
-    const dO=new Date(dateVal);
-    document.getElementById('rt').textContent=city+' — '+dO.getFullYear()+'年'+(dO.getMonth()+1)+'月'+dO.getDate()+'日';
-    document.getElementById('rs').textContent='太陽 '+CChart.planets[0].sign.name+' · 月 '+CChart.planets[1].sign.name+(CChart.asc?' · ASC '+CChart.asc.sign.name:'');
-    if(!BTK)document.getElementById('ub').classList.add('show');
-    drawChart(CChart);renderPL(CChart);renderAS(CChart);
-    await generateReadings(CChart,city);
-  }catch(e){alert('計算エラー: '+e.message);console.error(e);}
-  btn.disabled=false;btn.textContent='✦ 星を読む ✦';
-}
 function goBack(){document.getElementById('HP').style.display='flex';document.getElementById('rp').classList.remove('show');document.getElementById('ub').classList.remove('show');window.scrollTo(0,0);}
 </script>
 </body>
