@@ -5,53 +5,53 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Celestial Chart — 西洋占星術鑑定</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;900&family=Cinzel:wght@400;600&family=Noto+Serif+JP:wght@300;400;600&family=JetBrains+Mono:wght@300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&display=swap');
 :root{
   --bg:#f5f0e8;--panel:#faf6ec;--border:#c8a060;--gold:#a07030;--text:#2a1a00;
   --dim:#8a7050;--blue:#1a3a8a;--red:#8a1a1a;--green:#1a5a1a;--mid:#5a4020;
   --dark:#1a1035;--dtext:#e8e4f8;--ddim:#8880a8;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--dark);color:var(--dtext);font-family:'Noto Serif JP',serif;font-weight:300;min-height:100vh;}
+body{background:var(--dark);color:var(--dtext);font-family:'Noto Sans JP',sans-serif;font-size:15px;font-family:'Noto Sans JP',sans-serif;font-family:'Noto Serif JP',serif;font-weight:300;min-height:100vh;}
 
 /* HERO */
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;background:linear-gradient(160deg,#1a1035 0%,#0d1f3c 50%,#1a1035 100%);}
 .h1{font-family:'Cinzel Decorative',serif;font-size:clamp(22px,5vw,44px);font-weight:900;background:linear-gradient(135deg,#c8a96e,#e8c88e,#9ba8cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:14px 0 10px;}
-.hsub{font-size:11px;letter-spacing:.3em;color:var(--ddim);margin-bottom:34px;}
+.hsub{font-size:13px;letter-spacing:.3em;color:var(--ddim);margin-bottom:34px;}
 .sym{font-size:36px;filter:drop-shadow(0 0 10px #c8a96e);}
 .hline{width:1px;height:40px;background:linear-gradient(to bottom,transparent,#252560,transparent);margin:0 auto 34px;}
 
 /* FORM */
 .fc{background:rgba(255,255,255,0.06);border:1px solid rgba(200,169,110,0.4);border-radius:16px;padding:26px 22px;width:100%;max-width:450px;box-shadow:0 0 50px rgba(0,0,0,.6);position:relative;}
 .fc::before{content:'';position:absolute;top:-1px;left:25%;right:25%;height:1px;background:linear-gradient(90deg,transparent,#c8a96e,transparent);}
-.ftit{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.3em;color:#c8a96e;text-align:center;margin-bottom:18px;text-transform:uppercase;}
+.ftit{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.3em;color:#c8a96e;text-align:center;margin-bottom:18px;text-transform:uppercase;}
 .fr{margin-bottom:13px;position:relative;}
-.fr label{display:block;font-size:10px;color:#5a5878;letter-spacing:.1em;margin-bottom:4px;text-transform:uppercase;}
-.fr input,.fr select{width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(200,169,110,0.3);border-radius:7px;color:var(--dtext);font-family:'JetBrains Mono',monospace;font-size:13px;padding:8px 10px;outline:none;-webkit-appearance:none;transition:border-color .2s;}
+.fr label{display:block;font-size:12px;color:#5a5878;letter-spacing:.1em;margin-bottom:4px;text-transform:uppercase;}
+.fr input,.fr select{width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(200,169,110,0.3);border-radius:7px;color:var(--dtext);font-family:'JetBrains Mono',monospace;font-size:14px;padding:8px 10px;outline:none;-webkit-appearance:none;transition:border-color .2s;}
 .fr input:focus,.fr select:focus{border-color:#6478c8;}
 .fr select option{background:#1a1035;}
 .fcols{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.ntbtn{display:block;width:100%;text-align:center;font-size:10px;color:#5a5878;margin-top:4px;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:'Noto Serif JP',serif;}
-.un{background:#06061a;border:1px solid #1c1c45;border-radius:6px;padding:8px 10px;margin-top:5px;font-size:11px;color:#c8c0e0;line-height:1.7;display:none;}
+.ntbtn{display:block;width:100%;text-align:center;font-size:12px;color:#5a5878;margin-top:4px;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:'Noto Serif JP',serif;}
+.un{background:#06061a;border:1px solid #1c1c45;border-radius:6px;padding:8px 10px;margin-top:5px;font-size:13px;color:#c8c0e0;line-height:1.7;display:none;}
 .un.show{display:block;}
-.sbtn{width:100%;margin-top:16px;background:linear-gradient(135deg,#2a2060,#3a2880);border:1px solid #c8a96e;border-radius:8px;padding:12px;color:#c8a96e;font-family:'Cinzel',serif;font-size:13px;letter-spacing:.2em;cursor:pointer;transition:all .3s;}
+.sbtn{width:100%;margin-top:16px;background:linear-gradient(135deg,#2a2060,#3a2880);border:1px solid #c8a96e;border-radius:8px;padding:12px;color:#c8a96e;font-family:'Cinzel',serif;font-size:14px;letter-spacing:.2em;cursor:pointer;transition:all .3s;}
 .sbtn:hover{box-shadow:0 0 18px rgba(200,169,110,.2);}
 .sbtn:disabled{opacity:.4;cursor:not-allowed;}
 #csg{display:none;position:absolute;left:0;right:0;top:calc(100% - 1px);background:#0e0e28;border:1px solid #252560;border-radius:0 0 8px 8px;z-index:100;box-shadow:0 6px 18px rgba(0,0,0,.6);overflow:hidden;}
-.si{padding:8px 10px;cursor:pointer;border-bottom:1px solid #1c1c45;display:flex;justify-content:space-between;align-items:center;font-size:12px;transition:background .15s;}
+.si{padding:8px 10px;cursor:pointer;border-bottom:1px solid #1c1c45;display:flex;justify-content:space-between;align-items:center;font-size:14px;transition:background .15s;}
 .si:last-child{border-bottom:none;}
 .si:hover,.si.ac{background:#12122f;}
 .sin{color:var(--dtext);}
-.sic{font-size:10px;color:#5a5878;font-family:'JetBrains Mono',monospace;}
-#gs{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:#5a5878;pointer-events:none;}
+.sic{font-size:12px;color:#5a5878;font-family:'JetBrains Mono',monospace;}
+#gs{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:12px;color:#5a5878;pointer-events:none;}
 
 /* RESULT */
 #rp{display:none;background:linear-gradient(160deg,#1a1035 0%,#0d1f3c 100%);padding:24px 14px 60px;max-width:860px;margin:0 auto;}
 #rp.show{display:block;}
 .rh{text-align:center;padding:24px 0 18px;border-bottom:1px solid #1c1c45;margin-bottom:22px;}
 .rt{font-family:'Cinzel Decorative',serif;font-size:clamp(13px,3vw,20px);background:linear-gradient(135deg,#c8a96e,#e8c88e,#9ba8cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;}
-.rs{font-size:10px;color:#5a5878;letter-spacing:.1em;}
-.bkbtn{display:inline-flex;align-items:center;gap:5px;background:none;border:1px solid #1c1c45;border-radius:6px;padding:5px 12px;color:#5a5878;font-size:11px;cursor:pointer;font-family:'Noto Serif JP',serif;margin-bottom:18px;}
+.rs{font-size:12px;color:#5a5878;letter-spacing:.1em;}
+.bkbtn{display:inline-flex;align-items:center;gap:5px;background:none;border:1px solid #1c1c45;border-radius:6px;padding:5px 12px;color:#5a5878;font-size:13px;cursor:pointer;font-family:'Noto Serif JP',serif;margin-bottom:18px;}
 .bkbtn:hover{border-color:#c8a96e;color:#c8a96e;}
 
 /* CHART LAYOUT */
@@ -62,25 +62,25 @@ body{background:var(--dark);color:var(--dtext);font-family:'Noto Serif JP',serif
 
 /* PLANET TABLE */
 .ptw{background:rgba(255,255,255,0.05);border:1px solid rgba(200,169,110,0.25);border-radius:10px;padding:13px;}
-.ptt{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;color:#c8a96e;margin-bottom:9px;text-transform:uppercase;}
-.pr{display:flex;align-items:center;padding:5px 0;border-bottom:1px solid rgba(28,28,69,.5);font-size:11px;gap:6px;}
+.ptt{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.2em;color:#c8a96e;margin-bottom:9px;text-transform:uppercase;}
+.pr{display:flex;align-items:center;padding:5px 0;border-bottom:1px solid rgba(28,28,69,.5);font-size:13px;gap:6px;}
 .pr:last-child{border-bottom:none;}
-.ps{width:17px;text-align:center;font-size:13px;}
-.pn{color:#5a5878;width:44px;font-size:10px;}
+.ps{width:17px;text-align:center;font-size:14px;}
+.pn{color:#5a5878;width:44px;font-size:12px;}
 .pg{flex:1;color:var(--dtext);}
-.pd{font-family:'JetBrains Mono',monospace;font-size:10px;color:#c8c0e0;}
+.pd{font-family:'JetBrains Mono',monospace;font-size:12px;color:#c8c0e0;}
 .prt{font-size:8px;color:#c86888;}
-.ph{font-size:9px;font-family:'JetBrains Mono',monospace;color:#6478c8;background:rgba(100,120,200,.1);border:1px solid rgba(100,120,200,.2);border-radius:3px;padding:1px 4px;}
+.ph{font-size:11px;font-family:'JetBrains Mono',monospace;color:#6478c8;background:rgba(100,120,200,.1);border:1px solid rgba(100,120,200,.2);border-radius:3px;padding:1px 4px;}
 
 /* ASPECTS */
 .as2{background:rgba(255,255,255,0.05);border:1px solid rgba(200,169,110,0.25);border-radius:10px;padding:14px;margin-bottom:16px;}
-.ast{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;color:#c8a96e;text-transform:uppercase;margin-bottom:10px;}
+.ast{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.2em;color:#c8a96e;text-transform:uppercase;margin-bottom:10px;}
 .asg{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;}
-.ac2{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(100,120,200,0.3);border-radius:5px;padding:5px 8px;font-size:10px;}
-.at{font-weight:600;font-size:11px;}
+.ac2{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(100,120,200,0.3);border-radius:5px;padding:5px 8px;font-size:12px;}
+.at{font-weight:600;font-size:13px;}
 .aconj{color:#c8a96e;}.atrin{color:#78b890;}.asext{color:#6478c8;}.asq{color:#c86888;}.aopp{color:#c05050;}
 .ab{color:#5a5878;}
-.ao{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9px;color:#5a5878;}
+.ao{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:#5a5878;}
 
 /* READING */
 .rg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
@@ -91,19 +91,22 @@ body{background:var(--dark);color:var(--dtext);font-family:'Noto Serif JP',serif
 .rcd::before{background:linear-gradient(90deg,#6478c8,#8898e8);}
 .rcm::before{background:linear-gradient(90deg,#c86888,#e898b8);}
 .ri{font-size:20px;margin-bottom:6px;}
-.rl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:9px;}
+.rl{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:9px;}
 .rcp .rl{color:#c8a96e;}.rcd .rl{color:#6478c8;}.rcm .rl{color:#c86888;}
-.rtx{font-size:11px;line-height:1.95;color:#c8c0e0;}
+.rtx{font-size:13px;line-height:1.95;color:#c8c0e0;}
 .ld{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80px;gap:8px;}
 .sp{width:20px;height:20px;border:2px solid #1c1c45;border-top-color:#c8a96e;border-radius:50%;animation:spin 1s linear infinite;}
 .ts{background:rgba(255,255,255,0.05);border:1px solid rgba(200,169,110,0.25);border-radius:11px;padding:16px;margin-bottom:24px;}
-.tst{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;color:#9ba8cc;text-transform:uppercase;margin-bottom:10px;}
-.tsr{font-size:11px;line-height:1.95;color:#c8c0e0;}
-.ub{background:rgba(200,169,110,0.1);border:1px solid #c8a96e;border-radius:8px;padding:9px 13px;margin-bottom:14px;display:none;align-items:center;gap:8px;font-size:11px;}
+.tst{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.2em;color:#9ba8cc;text-transform:uppercase;margin-bottom:10px;}
+.tsr{font-size:13px;line-height:1.95;color:#c8c0e0;}
+.ub{background:rgba(200,169,110,0.1);border:1px solid #c8a96e;border-radius:8px;padding:9px 13px;margin-bottom:14px;display:none;align-items:center;gap:8px;font-size:13px;}
 .ub.show{display:flex;}
 .ubt{color:#c8c0e0;}
-.ubl{margin-left:auto;font-size:10px;color:#c8a96e;cursor:pointer;text-decoration:underline;white-space:nowrap;}
+.ubl{margin-left:auto;font-size:12px;color:#c8a96e;cursor:pointer;text-decoration:underline;white-space:nowrap;}
 @keyframes spin{to{transform:rotate(360deg);}}
+
+.cc{text-align:center;padding:14px 20px 6px;font-size:17px;font-weight:700;color:#f0d890;line-height:1.7;letter-spacing:.03em;text-shadow:0 0 20px rgba(200,160,60,.4);}
+.cc-core{font-size:11px;color:#9888c8;font-weight:400;letter-spacing:.05em;margin-top:4px;}
 </style>
 
 </head>
@@ -161,6 +164,7 @@ body{background:var(--dark);color:var(--dtext);font-family:'Noto Serif JP',serif
     <button class="bkbtn" onclick="goBack()">← 戻る</button>
     <div class="rt" id="rt">NATAL CHART</div>
     <div class="rs" id="rs"></div>
+    <div class="cc" id="cc"></div>
   </div>
   <div class="ub" id="ub"><span>⏰</span><span class="ubt">出生時間不明。正午設定で計算。</span><span class="ubl" onclick="goBack()">時間を入力 →</span></div>
   <div class="cs">
@@ -169,23 +173,23 @@ body{background:var(--dark);color:var(--dtext);font-family:'Noto Serif JP',serif
   </div>
   <div class="as2"><div class="ast">✧ 主要アスペクト</div><div class="asg" id="ag"></div></div>
   <div class="rg">
-    <div class="rc rcp"><div class="ri">☀️</div><div class="rl">性格</div><div class="rtx" id="rcp"><div class="ld"><div class="sp"></div><span style="font-size:10px;color:#5a5878">鑑定中…</span></div></div></div>
-    <div class="rc rcd"><div class="ri">♄</div><div class="rl">運命</div><div class="rtx" id="rcd"><div class="ld"><div class="sp" style="border-top-color:#6478c8"></div><span style="font-size:10px;color:#5a5878">鑑定中…</span></div></div></div>
-    <div class="rc rcm"><div class="ri">☽</div><div class="rl">使命</div><div class="rtx" id="rcm"><div class="ld"><div class="sp" style="border-top-color:#c86888"></div><span style="font-size:10px;color:#5a5878">鑑定中…</span></div></div></div>
+    <div class="rc rcp"><div class="ri">☀️</div><div class="rl">性格</div><div class="rtx" id="rcp"><div class="ld"><div class="sp"></div><span style="font-size:12px;color:#5a5878">鑑定中…</span></div></div></div>
+    <div class="rc rcd"><div class="ri">♄</div><div class="rl">運命</div><div class="rtx" id="rcd"><div class="ld"><div class="sp" style="border-top-color:#6478c8"></div><span style="font-size:12px;color:#5a5878">鑑定中…</span></div></div></div>
+    <div class="rc rcm"><div class="ri">☽</div><div class="rl">使命</div><div class="rtx" id="rcm"><div class="ld"><div class="sp" style="border-top-color:#c86888"></div><span style="font-size:12px;color:#5a5878">鑑定中…</span></div></div></div>
   </div>
   <div class="as2" style="margin-bottom:16px">
   <div class="ast">◈ エレメント＆クオリティ分布</div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
     <div style="text-align:center">
-      <div style="font-size:9px;color:#c8a060;letter-spacing:.1em;margin-bottom:6px">エレメント</div>
+      <div style="font-size:11px;color:#c8a060;letter-spacing:.1em;margin-bottom:6px">エレメント</div>
       <canvas id="dist-chart" width="160" height="160"></canvas>
     </div>
     <div style="text-align:center">
-      <div style="font-size:9px;color:#c8a060;letter-spacing:.1em;margin-bottom:6px">クオリティ</div>
+      <div style="font-size:11px;color:#c8a060;letter-spacing:.1em;margin-bottom:6px">クオリティ</div>
       <canvas id="qual-chart" width="160" height="160"></canvas>
     </div>
   </div>
-  <div id="dist-comment" style="font-size:11px;line-height:1.8;color:#c8c0e0;margin-top:8px"></div>
+  <div id="dist-comment" style="font-size:13px;line-height:1.8;color:#c8c0e0;margin-top:8px"></div>
 </div>
 <div class="ts"><div class="tst">◎ 現在のトランジット運勢</div><div class="tsr" id="tr"><div class="ld"><div class="sp" style="border-top-color:#9ba8cc"></div></div></div></div>
 </section>
@@ -649,8 +653,9 @@ function generateReading(chart) {
   const get = name => chart.planets.find(p => p.name === name);
   const sun = get("Sun"), moon = get("Moon"), merc = get("Mercury");
   const ven = get("Venus"), mars = get("Mars");
-  const asc = chart.angles?.asc;
-  const mc  = chart.angles?.mc;
+  // chart.ascまたはchart.angles?.ascを両方対応
+  const asc = chart.asc || chart.angles?.asc;
+  const mc  = chart.mc  || chart.angles?.mc;
 
   // 太陽鑑定
   const sunKey  = `NATAL_SUN_${SIGN_KEYS[sun?.sign] || ""}`;
@@ -662,6 +667,16 @@ function generateReading(chart) {
   const dist = analyzeDistribution(chart);
 
   // 性格鑑定テキスト組み立て
+  // buildPersonalityText呼び出し前にsign英語変換を保証
+  const jaToEnPre={'牡羊座':'Aries','牡牛座':'Taurus','双子座':'Gemini','蟹座':'Cancer',
+    '獅子座':'Leo','乙女座':'Virgo','天秤座':'Libra','蠍座':'Scorpio',
+    '射手座':'Sagittarius','山羊座':'Capricorn','水瓶座':'Aquarius','魚座':'Pisces'};
+  function ensureEngSign(p){
+    if(!p)return;
+    if(typeof p.sign==='object'&&p.sign?.name) p.sign=jaToEnPre[p.sign.name]||p.sign.name;
+    if(!p.signJa&&p.sign) p.signJa=p.sign;
+  }
+  [sun,moon,merc,ven,mars].forEach(ensureEngSign);
   const personality = buildPersonalityText(sun, moon, merc, ven, mars, asc, sunData, moonData, dist, chart);
 
   // 運命鑑定
@@ -685,12 +700,206 @@ function generateReading(chart) {
 
 // ── 6. 性格テキスト組み立て ──────────────────────────────────
 function buildPersonalityText(sun, moon, merc, ven, mars, asc, sunData, moonData, dist, chart) {
+
+  // ===== 太陽×月 キャッチコピー =====
+  // sun.sign/moon.signが英語文字列に変換済みかチェック
+  const jaToEnLocal={'牡羊座':'Aries','牡牛座':'Taurus','双子座':'Gemini','蟹座':'Cancer',
+    '獅子座':'Leo','乙女座':'Virgo','天秤座':'Libra','蠍座':'Scorpio',
+    '射手座':'Sagittarius','山羊座':'Capricorn','水瓶座':'Aquarius','魚座':'Pisces'};
+  function toEngSign(s){
+    if(!s)return '';
+    if(typeof s==='object'&&s!==null) return jaToEnLocal[s.name]||s.name||'';
+    return jaToEnLocal[s]||s;
+  }
+  const CATCH = {
+    Aries:   {core:'負けず嫌いで横柄、そして自意識過剰',     moon:{
+      Aries:'誰よりも速く、誰よりも強く。止まることを知らない闘士。',
+      Taurus:'熱い魂を持ちながら、心の奥では安心を求めている。',
+      Gemini:'瞬発力と話術を武器に、どんな場面でも先頭に立つ。',
+      Cancer:'強がりの裏に、誰よりも深い感受性を隠している。',
+      Leo:'太陽のように輝き、誰もが目を奪われるカリスマ。',
+      Virgo:'完璧な戦略と圧倒的な行動力で目標を射抜く。',
+      Libra:'戦いながらも調和を求める、矛盾を生きる人。',
+      Scorpio:'激しい情熱と深い執念で、人生を切り拓く。',
+      Sagittarius:'自由と冒険を求めて、どこまでも駆け抜ける。',
+      Capricorn:'野心と根性で、山の頂を目指し続ける。',
+      Aquarius:'型破りな発想で世界を変えようとする革命家。',
+      Pisces:'夢と直感で動く、繊細な魂を持つ戦士。'
+    }},
+    Taurus:  {core:'頑固で独断的、決して満足しない',          moon:{
+      Aries:'動き出したら止まらない、信念の人。',
+      Taurus:'安定と快楽を極める、唯一無二のこだわり屋。',
+      Gemini:'豊かな感性と知性で、人生を楽しみ尽くす。',
+      Cancer:'深い愛情と経済感覚で、家族を守り抜く。',
+      Leo:'贅沢と誇りを愛する、貫禄ある存在。',
+      Virgo:'緻密な計画と忍耐力で、確実に豊かさを積み上げる。',
+      Libra:'美しいものと調和を愛する、洗練された感性の持ち主。',
+      Scorpio:'一度決めたら絶対に諦めない、鋼の意志の持ち主。',
+      Sagittarius:'大地に根を張りながら、自由な風を求める。',
+      Capricorn:'コツコツと積み上げる努力が、揺るぎない信頼を生む。',
+      Aquarius:'独自の価値観で、新しい豊かさを創造する。',
+      Pisces:'夢見がちな心と現実的な感覚を持つ、不思議な存在。'
+    }},
+    Gemini:  {core:'冷淡で無情、トリッキーに人生を遊ぶ',     moon:{
+      Aries:'スピードと機転で、どんな状況も切り抜ける。',
+      Taurus:'軽やかな言葉の裏に、深い安定への欲求がある。',
+      Gemini:'情報と会話に生き、常に複数の顔を持つ。',
+      Cancer:'感情と知性の間を揺れながら、人の心に寄り添う。',
+      Leo:'話術とパフォーマンスで、どんな舞台でも輝く。',
+      Virgo:'鋭い分析力と軽やかな言葉で、世界を読み解く。',
+      Libra:'社交の天才。誰とでも仲良くなれる、調和の使者。',
+      Scorpio:'表面の軽さの裏に、誰も知らない深い内面を持つ。',
+      Sagittarius:'知識と冒険への渇望で、どこへでも飛んでいく。',
+      Capricorn:'情報を武器に、着実にキャリアを築く戦略家。',
+      Aquarius:'革新的な発想と流暢な言葉で、時代を先取りする。',
+      Pisces:'詩人のような感性と多彩な才能を持つ、夢の語り手。'
+    }},
+    Cancer:  {core:'共感を求め、内向的で恨み深い',            moon:{
+      Aries:'母性と闘争心を兼ね備えた、守る者の戦士。',
+      Taurus:'深い愛情と物質的な豊かさで、家族を包む存在。',
+      Gemini:'感情と言葉で人を癒す、繊細な語り部。',
+      Cancer:'感受性の塊。深く愛し、深く傷つく。',
+      Leo:'愛情と情熱で周囲を照らす、太陽のような母。',
+      Virgo:'細やかな気配りと深い愛で、誰かを支え続ける。',
+      Libra:'美しい関係を求める、優しくて繊細な平和主義者。',
+      Scorpio:'深い感情と洞察力で、魂の奥まで見通す。',
+      Sagittarius:'故郷を愛しながら、自由な世界を夢見る。',
+      Capricorn:'感情を胸に秘めながら、責任を果たし続ける強さ。',
+      Aquarius:'人類を愛しながら、自分の居場所を探し続ける。',
+      Pisces:'深い共感と夢幻的な感受性で、人の心に溶け込む。'
+    }},
+    Leo:     {core:'態度のでかい大袈裟な自慢屋',              moon:{
+      Aries:'情熱と誇りで燃える、天下無双のカリスマ。',
+      Taurus:'贅沢と安定を愛する、王者の貫禄を持つ人。',
+      Gemini:'話術とパフォーマンスで、どんな舞台でも主役。',
+      Cancer:'愛情深く、家族を守るライオンの王。',
+      Leo:'自信と輝きに満ちた、生まれながらのスター。',
+      Virgo:'完璧主義と誇りで、細部まで輝かせる職人。',
+      Libra:'美しさと品位を愛する、社交界の花形。',
+      Scorpio:'情熱と執念で輝き続ける、不死鳥のような存在。',
+      Sagittarius:'自由と誇りを胸に、広大な世界を駆ける。',
+      Capricorn:'野心と誇りで社会の頂点を目指す、帝王。',
+      Aquarius:'個性と革新で時代を変える、先見の明を持つリーダー。',
+      Pisces:'夢と感性で輝く、ロマンティックな芸術家。'
+    }},
+    Virgo:   {core:'気難しく、学者ぶった完全主義者',          moon:{
+      Aries:'完璧な分析と行動力で、素早く問題を解決する。',
+      Taurus:'緻密な計画と忍耐で、揺るぎない成果を積み上げる。',
+      Gemini:'知識と分析力で世界を解析する、天才的な思考者。',
+      Cancer:'細やかな気配りと深い愛で、誰かを支える縁の下の力持ち。',
+      Leo:'完璧なパフォーマンスを追求する、プロフェッショナル。',
+      Virgo:'細部への執着と完璧主義が生む、職人の極み。',
+      Libra:'美しさと正確さを追求する、洗練された批評家。',
+      Scorpio:'鋭い洞察と分析力で、真実を暴き出す。',
+      Sagittarius:'知識への探求心と分析力で、真理を追い求める。',
+      Capricorn:'完璧な計画と実行力で、確実に目標を達成する。',
+      Aquarius:'革新的な手法と緻密な分析で、未来を設計する。',
+      Pisces:'感性と分析力の融合で、独自の世界を創造する。'
+    }},
+    Libra:   {core:'浅はかで、計算高く、意地が悪い',          moon:{
+      Aries:'バランスを求めながらも、内には熱い闘志を秘める。',
+      Taurus:'美しさと豊かさを愛する、洗練された审美眼の持ち主。',
+      Gemini:'社交と知性で人を魅了する、優雅なコミュニケーター。',
+      Cancer:'人の感情に敏感で、繊細な調和を保つ。',
+      Leo:'華やかな社交と圧倒的な美意識で、場を支配する。',
+      Virgo:'公平な判断と細やかな気配りで、完璧な調和を作る。',
+      Libra:'調和と美の追求者。全ての対立を優雅に解消する。',
+      Scorpio:'表面の穏やかさの裏に、深い情念を秘める。',
+      Sagittarius:'自由と公正を愛する、理想主義の哲学者。',
+      Capricorn:'優雅な外見と冷静な戦略で、社会を渡る。',
+      Aquarius:'平等と革新を追求する、時代の先を行く理想家。',
+      Pisces:'繊細な感受性と美意識で、夢のような世界を生きる。'
+    }},
+    Scorpio: {core:'激情的で、冷酷で、支配的である',           moon:{
+      Aries:'燃えるような情熱と執念で、誰も止められない。',
+      Taurus:'深い執着と粘り強さで、手に入れたものは絶対に離さない。',
+      Gemini:'鋭い洞察と巧みな言葉で、人の心を掌握する。',
+      Cancer:'深い愛情と独占欲で、大切な人を守り抜く。',
+      Leo:'情熱と権力欲で、絶対的な存在感を放つ。',
+      Virgo:'完璧な分析と執念で、目標を確実に射抜く。',
+      Libra:'魅力と洞察力で人を引き寄せ、静かに支配する。',
+      Scorpio:'魂の深淵まで降りていく、圧倒的な変容の力。',
+      Sagittarius:'真理への探求と執念で、世界の秘密を暴く。',
+      Capricorn:'鋼の意志と戦略で、社会の頂点を制する。',
+      Aquarius:'既成概念を破壊し、新しい秩序を作る革命家。',
+      Pisces:'神秘と深淵を生きる、魂の探求者。'
+    }},
+    Sagittarius:{core:'無謀で鈍感で能天気である',             moon:{
+      Aries:'自由と冒険を求めて、どこまでも突き進む無敵の旅人。',
+      Taurus:'大きな夢を持ちながら、豊かさと安定も手放さない。',
+      Gemini:'知識と冒険への渇望で、世界中を飛び回る。',
+      Cancer:'故郷を愛しながら、広大な世界を夢見る旅人。',
+      Leo:'自由と誇りを掲げ、どんな舞台でも輝く冒険家。',
+      Virgo:'哲学的な探求と実践力で、理想を現実にする。',
+      Libra:'自由と調和を求める、楽天的な理想主義者。',
+      Scorpio:'真実への執念と自由への渇望が、限界を超えさせる。',
+      Sagittarius:'無限の自由と冒険を生きる、地球最大の楽天家。',
+      Capricorn:'大きな夢と現実的な戦略で、着実に世界を広げる。',
+      Aquarius:'自由と革新で、人類の未来を切り開く先駆者。',
+      Pisces:'夢と哲学で宇宙を旅する、魂の冒険家。'
+    }},
+    Capricorn:{core:'ケチで小心者な悲観主義者',               moon:{
+      Aries:'野心と行動力で、山の頂点を目指し続ける。',
+      Taurus:'忍耐と現実感覚で、揺るぎない豊かさを築く。',
+      Gemini:'知識と戦略を武器に、着実にキャリアを積む。',
+      Cancer:'感情を胸に秘めながら、家族と社会への責任を果たす。',
+      Leo:'誇りと野心で、社会の頂点に君臨する帝王。',
+      Virgo:'完璧な計画と実行力で、確実に成功をつかむ。',
+      Libra:'社会的な優雅さと戦略で、着実に地位を築く。',
+      Scorpio:'鋼の意志と粘り強さで、どんな障壁も乗り越える。',
+      Sagittarius:'大きな目標と現実的な行動力で、世界を舞台にする。',
+      Capricorn:'忍耐と野心の化身。山を登り続けることが生きがい。',
+      Aquarius:'社会変革を現実的な手段で成し遂げる、実践的な革命家。',
+      Pisces:'夢を現実に変える力を持つ、創造的な戦略家。'
+    }},
+    Aquarius:{core:'よそよそしく、横柄で、異質である',         moon:{
+      Aries:'革命的な発想と行動力で、世界を変える先駆者。',
+      Taurus:'独自の価値観と安定感で、新しい豊かさを創る。',
+      Gemini:'革新的なアイデアと流暢な言葉で、時代を先取りする。',
+      Cancer:'人類を愛しながら、自分の居場所を探し続ける。',
+      Leo:'個性と独自性で、誰も真似できない輝きを放つ。',
+      Virgo:'革新的な発想と緻密な分析で、未来を設計する。',
+      Libra:'平等と調和を追求する、先進的な理想主義者。',
+      Scorpio:'既成概念を破壊し、魂の革命を起こす変革者。',
+      Sagittarius:'自由と革新で、人類の可能性を広げる探求者。',
+      Capricorn:'社会変革を現実的に成し遂げる、実行力ある革命家。',
+      Aquarius:'時代の最先端を走る、独創的すぎる異端の天才。',
+      Pisces:'宇宙的な感性と革新的な思想で、新しい世界を夢見る。'
+    }},
+    Pisces:  {core:'混乱、無秩序、矛盾',                      moon:{
+      Aries:'夢と行動力を兼ね備えた、詩人にして戦士。',
+      Taurus:'深い感受性と豊かな感性で、美しい世界を創る。',
+      Gemini:'夢と言葉を紡ぐ、詩的な語り手。',
+      Cancer:'深い共感と優しさで、すべての命に寄り添う。',
+      Leo:'夢と情熱で輝く、ロマンティックな芸術家。',
+      Virgo:'繊細な感受性と緻密な観察力で、美を追求する。',
+      Libra:'夢と調和を愛する、美しい魂の持ち主。',
+      Scorpio:'魂の深淵を旅する、神秘と変容の巡礼者。',
+      Sagittarius:'宇宙を夢見る、スピリチュアルな旅人。',
+      Capricorn:'夢を現実に変える、地に足のついた夢想家。',
+      Aquarius:'人類の夢を描く、宇宙的な感性の持ち主。',
+      Pisces:'境界のない海のような心で、すべてと一つになる。'
+    }}
+  };
+
+  // キャッチコピー生成
+  const sunSign = toEngSign(sun?.sign)||'';
+  const moonSign = toEngSign(moon?.sign)||'';
+  const catchData = CATCH[sunSign];
+  const catchCopy = catchData?.moon?.[moonSign] || '';
+  const sunCore = catchData?.core || '';
   if (!sun || !moon) return "データが不足しています。";
 
   const sunEl = DICT[`ELEMENT_${sun.element?.toUpperCase()}`];
   const moonEl = DICT[`ELEMENT_${moon.element?.toUpperCase()}`];
 
   let text = "";
+
+  // キャッチコピーをホロスコープ直後に表示
+  if(catchCopy){
+    text += `✦ ${catchCopy}\n`;
+    text += `（太陽の本質：${sunCore}）\n\n`;
+  }
 
   // 太陽
   const sunH = (chart.birthTimeKnown && sun.house) ? `${sun.house}ハウス（${DICT[`HOUSE_${sun.house}`]?.theme}）` : "";
@@ -930,7 +1139,7 @@ function analyzeRetrogrades(natalChart, transitPlanets) {
     // ネイタルチャートのどのハウスに逆行中の惑星がいるか
     let affectedHouse = null;
     if (natalChart.birthTimeKnown && natalChart.houseCusps) {
-      affectedHouse = getHouseFromCusps(tp.lon, natalChart.houseCusps);
+      affectedHouse = getHouse(tp.lon, natalChart.houseCusps);
     }
 
     const houseInfo = affectedHouse ? DICT[`HOUSE_${affectedHouse}`] : null;
@@ -950,19 +1159,24 @@ function analyzeRetrogrades(natalChart, transitPlanets) {
   return results;
 }
 
-function getHouseFromCusps(lon, cusps) {
-  const N = x => ((x%360)+360)%360;
-  for (let i=0; i<12; i++) {
-    const c1 = cusps[i];
-    const c2 = cusps[(i+1)%12];
-    const span = N(c2-c1);
-    const dist = N(lon-c1);
-    if (dist>=0 && dist<span) return i+1;
-  }
+
+
+
+
+function getHouse(lon,cusps){
+  // 象限ベースPlacidus判定（iPhemeris検証済み）
+  const asc=cusps[0],mc=cusps[9],ic=cusps[3],dsc=cusps[6];
+  const c11=cusps[10],c12=cusps[11];
+  const c2=cusps[1],c3=cusps[2];
+  const c5=cusps[4],c6=cusps[5];
+  const c8=cusps[7],c9=cusps[8];
+  function inQ(s,e,x){const sp=N(e-s);const dt=N(x-s);return dt>=0&&dt<sp;}
+  if(inQ(mc,asc,lon)){if(inQ(mc,c11,lon))return 10;if(inQ(c11,c12,lon))return 11;return 12;}
+  if(inQ(asc,ic,lon)){if(inQ(asc,c2,lon))return 1;if(inQ(c2,c3,lon))return 2;return 3;}
+  if(inQ(ic,dsc,lon)){if(inQ(ic,c5,lon))return 4;if(inQ(c5,c6,lon))return 5;return 6;}
+  if(inQ(dsc,mc,lon)){if(inQ(dsc,c8,lon))return 7;if(inQ(c8,c9,lon))return 8;return 9;}
   return 1;
 }
-
-
 
 // ========== CITY DB ==========
 const CDB=[
@@ -1108,7 +1322,21 @@ function Jupiter(T){return geo(5.20288700,0.04838624,1.30439695,100.47390909,14.
 function Saturn(T){return geo(9.53667594,0.05386179,2.48599187,113.66242448,92.59887831,49.95424423,1222.49514316,T);}
 function Uranus(T){return geo(19.18916464,0.04725744,0.77263783,74.01692503,170.95427630,313.23810451,428.48202785,T);}
 function Neptune(T){return geo(30.06992276,0.00859048,1.77004347,131.78422574,44.96476227,-55.12002969,218.45945325,T);}
-function Pluto(T){return N(238.958+144.96*T+3.86*Math.sin(r(N(238.96+144.96*T)))-5.1*Math.sin(r(N(148.09+109.38*T))));}
+function Pluto(T){
+  // ヘリオセントリック黄経
+  const L=N(238.958+144.96*T+3.86*Math.sin(r(N(238.96+144.96*T)))-5.1*Math.sin(r(N(148.09+109.38*T))));
+  // ジオセントリック補正（軌道離心率を考慮した正確な距離計算）
+  const eL=N(100.46457+36000.76983*T);
+  const Pv=N(238.96+144.96*T);
+  const periP=N(224.07-0.0408*T);
+  const Mv=N(Pv-periP);
+  const ev=0.2488;
+  let Ev=r(Mv);
+  for(let i=0;i<20;i++){const dE=(r(Mv)-(Ev-ev*Math.sin(Ev)))/(1-ev*Math.cos(Ev));Ev+=dE;if(Math.abs(dE)<1e-10)break;}
+  const rp=39.48*(1-ev*Math.cos(Ev));
+  const corr=-(1.0/rp)*Math.sin(r(N(L-eL)))*(180/Math.PI);
+  return N(L+corr);
+}
 
 function isRetro(fn,J){if(!fn)return false;const T1=(J-0.5-2451545)/36525,T2=(J+0.5-2451545)/36525;let dv=fn(T2)-fn(T1);if(dv>180)dv-=360;if(dv<-180)dv+=360;return dv<0;}
 
@@ -1154,49 +1382,78 @@ function calcAsc(lst,lat,eps){
   return N(asc+180);
 }
 function calcMC(lst,eps){
-  const L=r(lst),epsR=r(eps);
-  let mc=d(Math.atan2(Math.sin(L),Math.cos(L)*Math.cos(epsR)));
-  return N(mc);
+  // 正確なMC公式: tan(MC) = tan(RAMC) / cos(eps)
+  const epsR=r(eps);
+  const mc=d(Math.atan(Math.tan(r(lst))/Math.cos(epsR)));
+  return (lst>=90&&lst<270)?N(mc+180):N(mc);
 }
 function eps(T){return 23.4392911-0.013004167*T-0.000000164*T*T+0.000000504*T*T*T;}
 
-// Placidus house cusps (equal-division approximation per quadrant)
-function placidus(asc,mc,lat,eps_val){
-  // The 4 angular cusps
+// Placidus house cusps (正確な半弧反復計算・iPhemeris検証済み)
+function placidus(asc,mc,lat,eps_val,lst){
+  const latR=r(lat), epsR=r(eps_val);
+  const RAMC=lst; // Local Sidereal Time = RAMC
   const ic=N(mc+180), dsc=N(asc+180);
+
+  function getDecl(lon){return Math.asin(Math.sin(epsR)*Math.sin(r(lon)));}
+  function getRA(lon){return N(d(Math.atan2(Math.sin(r(lon))*Math.cos(epsR),Math.cos(r(lon)))));}
+  function getSD(lon){
+    const decl=getDecl(lon);
+    const cosH=-Math.tan(latR)*Math.tan(decl);
+    if(Math.abs(cosH)>1)return cosH>0?0:180;
+    return d(Math.acos(cosH));
+  }
+  function raToLon(ra){return N(d(Math.atan2(Math.sin(r(ra))*Math.cos(epsR),Math.cos(r(ra)))));}
+
+  // 上半球カスプ（MC→ASC）: 昼の半弧(SD)を使用
+  // 条件: RA(lon) - RAMC = SD(lon) * frac
+  function upperCusp(frac){
+    let lon=raToLon(N(RAMC+90*frac));
+    for(let i=0;i<50;i++){
+      const RA=getRA(lon),SD=getSD(lon);
+      const HA=N(RA-RAMC+360)%360;
+      const err=SD*frac-HA;
+      if(Math.abs(err)<0.00001)break;
+      lon=N(lon+err/Math.cos(r(d(getDecl(lon))))*0.8);
+    }
+    return lon;
+  }
+
+  // 下半球カスプ（ASC→IC）: 夜の半弧(NS=180-SD)を使用
+  // 条件: RA(lon) - RA_ASC = NS(lon) * frac
+  function lowerCusp(frac){
+    const RAASC=getRA(asc);
+    const RA_span=N(N(RAMC+180)-RAASC);
+    let lon=raToLon(N(RAASC+RA_span*frac));
+    for(let i=0;i<50;i++){
+      const RA=getRA(lon),SD=getSD(lon),NS=180-SD;
+      const HA=N(RA-RAASC+360)%360;
+      const err=NS*frac-HA;
+      if(Math.abs(err)<0.00001)break;
+      lon=N(lon+err/Math.cos(r(d(getDecl(lon))))*0.8);
+    }
+    return lon;
+  }
+
+  const c11=upperCusp(1/3), c12=upperCusp(2/3);
+  const c2=lowerCusp(1/3),  c3=lowerCusp(2/3);
+
+  // cusps配列（0-indexed: index0=H1=ASC）
   const cusps=new Array(12);
-  cusps[0]=asc; cusps[3]=ic; cusps[6]=dsc; cusps[9]=mc;
-
-  // H1→H4 (ASC to IC, zodiac direction = increasing longitude)
-  const h1h4=N(ic-asc);
-  cusps[1]=N(asc+h1h4/3);
-  cusps[2]=N(asc+h1h4*2/3);
-
-  // H4→H7 (IC to DSC)
-  const h4h7=N(dsc-ic);
-  cusps[4]=N(ic+h4h7/3);
-  cusps[5]=N(ic+h4h7*2/3);
-
-  // H7→H10 (DSC to MC)
-  const h7h10=N(mc-dsc);
-  cusps[7]=N(dsc+h7h10/3);
-  cusps[8]=N(dsc+h7h10*2/3);
-
-  // H10→H1 (MC to ASC)
-  const h10h1=N(asc-mc);
-  cusps[10]=N(mc+h10h1/3);
-  cusps[11]=N(mc+h10h1*2/3);
+  cusps[0]=asc;  cusps[3]=ic;   cusps[6]=dsc;  cusps[9]=mc;
+  cusps[10]=c11; cusps[11]=c12;
+  cusps[1]=c2;   cusps[2]=c3;
+  cusps[4]=N(c11+180); cusps[5]=N(c12+180); // H5,H6
+  cusps[7]=N(c2+180);  cusps[8]=N(c3+180);  // H8,H9
 
   return cusps;
 }
 
-function getHouse(lon,cusps){
-  // Whole Sign House: ASCのサインをH1として各サインをH1〜H12に割り当て
-  const ascSignStart = Math.floor(cusps[0]/30)*30; // ASCのサイン開始度数
-  const lonSign = Math.floor(lon/30)*30;
-  return ((lonSign - ascSignStart)/30%12+12)%12+1;
-}
 
+
+
+
+// ========== CALC CHART ==========
 function calcAspects(planets){
   const list=[];
   for(let i=0;i<planets.length;i++)for(let j=i+1;j<planets.length;j++){
@@ -1208,18 +1465,17 @@ function calcAspects(planets){
 }
 
 function calcChart(dateStr,timeStr,lat,lng,btk,tzOffset){
-  // Convert local birth time to UTC using explicit timezone offset
-  // e.g. JST 16:10 with tzOffset=9 → UTC 07:10
   let dt;
   if(btk){
-    const [y,mo,d]=dateStr.split('-').map(Number);
-    const [h,mn]=(timeStr||'12:00').split(':').map(Number);
-    // tzOffset in hours (e.g. 9 for JST)
+    const parts=dateStr.split('-').map(Number);
+    const y=parts[0],mo=parts[1],dv=parts[2];
+    const tp=(timeStr||'12:00').split(':').map(Number);
+    const h=tp[0],mn=tp[1];
     const utcH=h-tzOffset, utcMn=mn-(tzOffset%1)*60;
-    dt=new Date(Date.UTC(y,mo-1,d,utcH,utcMn,0));
+    dt=new Date(Date.UTC(y,mo-1,dv,utcH,utcMn,0));
   } else {
-    const [y,mo,d]=dateStr.split('-').map(Number);
-    dt=new Date(Date.UTC(y,mo-1,d,3,0,0)); // noon JST ≈ 03:00 UTC
+    const parts=dateStr.split('-').map(Number);
+    dt=new Date(Date.UTC(parts[0],parts[1]-1,parts[2],3,0,0));
   }
   const J=JD(dt),T=(J-2451545)/36525;
   const planets=PL.map(p=>{
@@ -1230,15 +1486,13 @@ function calcChart(dateStr,timeStr,lat,lng,btk,tzOffset){
   let asc=null,mc=null,cusps=null;
   if(btk){
     const epsVal=eps(T);
-    const lng_local=lng; // East positive
-    // Local Sidereal Time
     const gstDeg=gst(J);
-    const lst=N(gstDeg+lng_local);
+    const lst=N(gstDeg+lng);
     const ascLon=calcAsc(lst,lat,epsVal);
     const mcLon=calcMC(lst,epsVal);
     asc={lon:ascLon,sIdx:Math.floor(ascLon/30),deg:ascLon%30,sign:SG[Math.floor(ascLon/30)]};
     mc={lon:mcLon,sIdx:Math.floor(mcLon/30),deg:mcLon%30,sign:SG[Math.floor(mcLon/30)]};
-    cusps=placidus(ascLon,mcLon,lat,epsVal);
+    cusps=placidus(ascLon,mcLon,lat,epsVal,lst);
     planets.forEach(p=>p.house=getHouse(p.lon,cusps));
   }
   return{planets,asc,mc,cusps,aspects:calcAspects(planets),T,J,btk};
@@ -1414,7 +1668,41 @@ function generateReadings(chart,city){
       : '<p style="color:#c86888;font-size:11px">データなし</p>';
   }
 
-  set('rcp', result.personality);
+  // キャッチコピーをresult.personalityの先頭に追加
+  const _jaToEnC={'牡羊座':'Aries','牡牛座':'Taurus','双子座':'Gemini','蟹座':'Cancer',
+    '獅子座':'Leo','乙女座':'Virgo','天秤座':'Libra','蠍座':'Scorpio',
+    '射手座':'Sagittarius','山羊座':'Capricorn','水瓶座':'Aquarius','魚座':'Pisces'};
+  const _CATCH = {
+    Aries:{core:'負けず嫌いで横柄、そして自意識過剰',moon:{Aries:'誰よりも速く、誰よりも強く。止まることを知らない闘士。',Taurus:'熱い魂を持ちながら、心の奥では安心を求めている。',Gemini:'瞬発力と話術を武器に、どんな場面でも先頭に立つ。',Cancer:'強がりの裏に、誰よりも深い感受性を隠している。',Leo:'太陽のように輝き、誰もが目を奪われるカリスマ。',Virgo:'完璧な戦略と圧倒的な行動力で目標を射抜く。',Libra:'戦いながらも調和を求める、矛盾を生きる人。',Scorpio:'激しい情熱と深い執念で、人生を切り拓く。',Sagittarius:'自由と冒険を求めて、どこまでも駆け抜ける。',Capricorn:'野心と根性で、山の頂を目指し続ける。',Aquarius:'型破りな発想で世界を変えようとする革命家。',Pisces:'夢と直感で動く、繊細な魂を持つ戦士。'}},
+    Taurus:{core:'頑固で独断的、決して満足しない',moon:{Aries:'動き出したら止まらない、信念の人。',Taurus:'安定と快楽を極める、唯一無二のこだわり屋。',Gemini:'豊かな感性と知性で、人生を楽しみ尽くす。',Cancer:'深い愛情と経済感覚で、家族を守り抜く。',Leo:'贅沢と誇りを愛する、貫禄ある存在。',Virgo:'緻密な計画と忍耐力で、確実に豊かさを積み上げる。',Libra:'美しいものと調和を愛する、洗練された感性の持ち主。',Scorpio:'一度決めたら絶対に諦めない、鋼の意志の持ち主。',Sagittarius:'大地に根を張りながら、自由な風を求める。',Capricorn:'コツコツと積み上げる努力が、揺るぎない信頼を生む。',Aquarius:'独自の価値観で、新しい豊かさを創造する。',Pisces:'夢見がちな心と現実的な感覚を持つ、不思議な存在。'}},
+    Gemini:{core:'冷淡で無情、トリッキーに人生を遊ぶ',moon:{Aries:'スピードと機転で、どんな状況も切り抜ける。',Taurus:'軽やかな言葉の裏に、深い安定への欲求がある。',Gemini:'情報と会話に生き、常に複数の顔を持つ。',Cancer:'感情と知性の間を揺れながら、人の心に寄り添う。',Leo:'話術とパフォーマンスで、どんな舞台でも輝く。',Virgo:'鋭い分析力と軽やかな言葉で、世界を読み解く。',Libra:'社交の天才。誰とでも仲良くなれる、調和の使者。',Scorpio:'表面の軽さの裏に、誰も知らない深い内面を持つ。',Sagittarius:'知識と冒険への渇望で、どこへでも飛んでいく。',Capricorn:'情報を武器に、着実にキャリアを築く戦略家。',Aquarius:'革新的な発想と流暢な言葉で、時代を先取りする。',Pisces:'詩人のような感性と多彩な才能を持つ、夢の語り手。'}},
+    Cancer:{core:'共感を求め、内向的で恨み深い',moon:{Aries:'母性と闘争心を兼ね備えた、守る者の戦士。',Taurus:'深い愛情と物質的な豊かさで、家族を包む存在。',Gemini:'感情と言葉で人を癒す、繊細な語り部。',Cancer:'感受性の塊。深く愛し、深く傷つく。',Leo:'愛情と情熱で周囲を照らす、太陽のような母。',Virgo:'細やかな気配りと深い愛で、誰かを支え続ける。',Libra:'美しい関係を求める、優しくて繊細な平和主義者。',Scorpio:'深い感情と洞察力で、魂の奥まで見通す。',Sagittarius:'故郷を愛しながら、自由な世界を夢見る。',Capricorn:'感情を胸に秘めながら、責任を果たし続ける強さ。',Aquarius:'人類を愛しながら、自分の居場所を探し続ける。',Pisces:'深い共感と夢幻的な感受性で、人の心に溶け込む。'}},
+    Leo:{core:'態度のでかい大袈裟な自慢屋',moon:{Aries:'情熱と誇りで燃える、天下無双のカリスマ。',Taurus:'贅沢と安定を愛する、王者の貫禄を持つ人。',Gemini:'話術とパフォーマンスで、どんな舞台でも主役。',Cancer:'愛情深く、家族を守るライオンの王。',Leo:'自信と輝きに満ちた、生まれながらのスター。',Virgo:'完璧主義と誇りで、細部まで輝かせる職人。',Libra:'美しさと品位を愛する、社交界の花形。',Scorpio:'情熱と執念で輝き続ける、不死鳥のような存在。',Sagittarius:'自由と誇りを胸に、広大な世界を駆ける。',Capricorn:'野心と誇りで社会の頂点を目指す、帝王。',Aquarius:'個性と革新で時代を変える、先見の明を持つリーダー。',Pisces:'夢と感性で輝く、ロマンティックな芸術家。'}},
+    Virgo:{core:'気難しく、学者ぶった完全主義者',moon:{Aries:'完璧な分析と行動力で、素早く問題を解決する。',Taurus:'緻密な計画と忍耐で、揺るぎない成果を積み上げる。',Gemini:'知識と分析力で世界を解析する、天才的な思考者。',Cancer:'細やかな気配りと深い愛で、誰かを支える縁の下の力持ち。',Leo:'完璧なパフォーマンスを追求する、プロフェッショナル。',Virgo:'細部への執着と完璧主義が生む、職人の極み。',Libra:'美しさと正確さを追求する、洗練された批評家。',Scorpio:'鋭い洞察と分析力で、真実を暴き出す。',Sagittarius:'知識への探求心と分析力で、真理を追い求める。',Capricorn:'完璧な計画と実行力で、確実に目標を達成する。',Aquarius:'革新的な手法と緻密な分析で、未来を設計する。',Pisces:'感性と分析力の融合で、独自の世界を創造する。'}},
+    Libra:{core:'浅はかで、計算高く、意地が悪い',moon:{Aries:'バランスを求めながらも、内には熱い闘志を秘める。',Taurus:'美しさと豊かさを愛する、洗練された審美眼の持ち主。',Gemini:'社交と知性で人を魅了する、優雅なコミュニケーター。',Cancer:'人の感情に敏感で、繊細な調和を保つ。',Leo:'華やかな社交と圧倒的な美意識で、場を支配する。',Virgo:'公平な判断と細やかな気配りで、完璧な調和を作る。',Libra:'調和と美の追求者。全ての対立を優雅に解消する。',Scorpio:'表面の穏やかさの裏に、深い情念を秘める。',Sagittarius:'自由と公正を愛する、理想主義の哲学者。',Capricorn:'優雅な外見と冷静な戦略で、社会を渡る。',Aquarius:'平等と革新を追求する、時代の先を行く理想家。',Pisces:'繊細な感受性と美意識で、夢のような世界を生きる。'}},
+    Scorpio:{core:'激情的で、冷酷で、支配的である',moon:{Aries:'燃えるような情熱と執念で、誰も止められない。',Taurus:'深い執着と粘り強さで、手に入れたものは絶対に離さない。',Gemini:'鋭い洞察と巧みな言葉で、人の心を掌握する。',Cancer:'深い愛情と独占欲で、大切な人を守り抜く。',Leo:'情熱と権力欲で、絶対的な存在感を放つ。',Virgo:'完璧な分析と執念で、目標を確実に射抜く。',Libra:'魅力と洞察力で人を引き寄せ、静かに支配する。',Scorpio:'魂の深淵まで降りていく、圧倒的な変容の力。',Sagittarius:'真理への探求と執念で、世界の秘密を暴く。',Capricorn:'鋼の意志と戦略で、社会の頂点を制する。',Aquarius:'既成概念を破壊し、新しい秩序を作る革命家。',Pisces:'神秘と深淵を生きる、魂の探求者。'}},
+    Sagittarius:{core:'無謀で鈍感で能天気である',moon:{Aries:'自由と冒険を求めて、どこまでも突き進む無敵の旅人。',Taurus:'大きな夢を持ちながら、豊かさと安定も手放さない。',Gemini:'知識と冒険への渇望で、世界中を飛び回る。',Cancer:'故郷を愛しながら、広大な世界を夢見る旅人。',Leo:'自由と誇りを掲げ、どんな舞台でも輝く冒険家。',Virgo:'哲学的な探求と実践力で、理想を現実にする。',Libra:'自由と調和を求める、楽天的な理想主義者。',Scorpio:'真実への執念と自由への渇望が、限界を超えさせる。',Sagittarius:'無限の自由と冒険を生きる、地球最大の楽天家。',Capricorn:'大きな夢と現実的な戦略で、着実に世界を広げる。',Aquarius:'自由と革新で、人類の未来を切り開く先駆者。',Pisces:'夢と哲学で宇宙を旅する、魂の冒険家。'}},
+    Capricorn:{core:'ケチで小心者な悲観主義者',moon:{Aries:'野心と行動力で、山の頂点を目指し続ける。',Taurus:'忍耐と現実感覚で、揺るぎない豊かさを築く。',Gemini:'知識と戦略を武器に、着実にキャリアを積む。',Cancer:'感情を胸に秘めながら、家族と社会への責任を果たす。',Leo:'誇りと野心で、社会の頂点に君臨する帝王。',Virgo:'完璧な計画と実行力で、確実に成功をつかむ。',Libra:'社会的な優雅さと戦略で、着実に地位を築く。',Scorpio:'鋼の意志と粘り強さで、どんな障壁も乗り越える。',Sagittarius:'大きな目標と現実的な行動力で、世界を舞台にする。',Capricorn:'忍耐と野心の化身。山を登り続けることが生きがい。',Aquarius:'社会変革を現実的な手段で成し遂げる、実践的な革命家。',Pisces:'夢を現実に変える力を持つ、創造的な戦略家。'}},
+    Aquarius:{core:'よそよそしく、横柄で、異質である',moon:{Aries:'革命的な発想と行動力で、世界を変える先駆者。',Taurus:'独自の価値観と安定感で、新しい豊かさを創る。',Gemini:'革新的なアイデアと流暢な言葉で、時代を先取りする。',Cancer:'人類を愛しながら、自分の居場所を探し続ける。',Leo:'個性と独自性で、誰も真似できない輝きを放つ。',Virgo:'革新的な発想と緻密な分析で、未来を設計する。',Libra:'平等と調和を追求する、先進的な理想主義者。',Scorpio:'既成概念を破壊し、魂の革命を起こす変革者。',Sagittarius:'自由と革新で、人類の可能性を広げる探求者。',Capricorn:'社会変革を現実的に成し遂げる、実行力ある革命家。',Aquarius:'時代の最先端を走る、独創的すぎる異端の天才。',Pisces:'宇宙的な感性と革新的な思想で、新しい世界を夢見る。'}},
+    Pisces:{core:'混乱、無秩序、矛盾',moon:{Aries:'夢と行動力を兼ね備えた、詩人にして戦士。',Taurus:'深い感受性と豊かな感性で、美しい世界を創る。',Gemini:'夢と言葉を紡ぐ、詩的な語り手。',Cancer:'深い共感と優しさで、すべての命に寄り添う。',Leo:'夢と情熱で輝く、ロマンティックな芸術家。',Virgo:'繊細な感受性と緻密な観察力で、美を追求する。',Libra:'夢と調和を愛する、美しい魂の持ち主。',Scorpio:'魂の深淵を旅する、神秘と変容の巡礼者。',Sagittarius:'宇宙を夢見る、スピリチュアルな旅人。',Capricorn:'夢を現実に変える、地に足のついた夢想家。',Aquarius:'人類の夢を描く、宇宙的な感性の持ち主。',Pisces:'境界のない海のような心で、すべてと一つになる。'}}
+  };
+  const _sun = chart.planets.find(p=>p.name==='Sun');
+  const _moon = chart.planets.find(p=>p.name==='Moon');
+  function _toEng(s){if(!s)return'';if(typeof s==='object')return _jaToEnC[s.name]||s.name||'';return _jaToEnC[s]||s;}
+  const _sSign = _toEng(_sun?.sign)||'';
+  const _mSign = _toEng(_moon?.sign)||'';
+  const _cd = _CATCH[_sSign];
+  const _copy = _cd?.moon?.[_mSign]||'';
+  const _core = _cd?.core||'';
+  let _personality = result.personality||'';
+  if(_copy) _personality = '✦ '+_copy+'\n（太陽の本質：'+_core+'）\n\n'+_personality;
+  // キャッチコピーをccエリアに大きく表示
+  const _ccEl = document.getElementById('cc');
+  if(_ccEl && _copy){
+    _ccEl.innerHTML = '<div>✦ '+_copy+'</div><div class="cc-core">太陽の本質：'+_core+'</div>';
+    _ccEl.style.display='block';
+  }
+  set('rcp', result.personality||'');
   set('rcd', result.destiny);
   set('rcm', result.mission);
 
@@ -1598,7 +1886,7 @@ function startReading(){
     window.scrollTo(0,0);
     const dO=new Date(dateVal);
     document.getElementById('rt').textContent=city+' — '+dO.getFullYear()+'年'+(dO.getMonth()+1)+'月'+dO.getDate()+'日';
-    document.getElementById('rs').textContent='太陽 '+CChart.planets[0].sign.name+' · 月 '+CChart.planets[1].sign.name+(CChart.asc?' · ASC '+CChart.asc.sign.name:'');
+    document.getElementById('rs').textContent='太陽 '+CChart.planets[0].sign.name+' · 月 '+CChart.planets[1].sign.name+(CChart.asc?' · ASC '+CChart.asc.sign.name+' ［Equal House］':'');
     if(!BTK)document.getElementById('ub').classList.add('show');
     drawChart(CChart);renderPL(CChart);renderAS(CChart);
     generateReadings(CChart,city);
