@@ -107,6 +107,7 @@ body{background:var(--dark);color:var(--dtext);font-family:'Noto Sans JP',sans-s
 
 .cc{text-align:center;padding:14px 20px 6px;font-size:17px;font-weight:700;color:#f0d890;line-height:1.7;letter-spacing:.03em;text-shadow:0 0 20px rgba(200,160,60,.4);}
 .cc-core{font-size:11px;color:#9888c8;font-weight:400;letter-spacing:.05em;margin-top:4px;}
+
 </style>
 
 </head>
@@ -118,6 +119,7 @@ body{background:var(--dark);color:var(--dtext);font-family:'Noto Sans JP',sans-s
   <div class="hline"></div>
   <div class="fc">
     <div class="ftit">☿ 生年月日・出生地を入力</div>
+    <div class="fr"><label>お名前（任意）</label><input type="text" id="iname" placeholder="例：山田 太郎" style="font-size:15px"></div>
     <div class="fr"><label>生年月日</label><input type="date" id="idate" value="1990-04-15"></div>
     <div class="fr">
       <label>出生時間</label>
@@ -2876,6 +2878,10 @@ function renderDistribution(dist){
   if(el)el.innerHTML=lines.filter(Boolean).join('<br>');
 }
 
+
+// ========== SAVED CHARTS ==========
+
+
 // ========== MAIN ==========
 let CChart=null;
 function startReading(){
@@ -2900,7 +2906,8 @@ function startReading(){
     document.getElementById('rp').classList.add('show');
     window.scrollTo(0,0);
     const dO=new Date(dateVal);
-    document.getElementById('rt').textContent=city+' — '+dO.getFullYear()+'年'+(dO.getMonth()+1)+'月'+dO.getDate()+'日';
+    const nameVal=document.getElementById('iname')?.value?.trim();
+    document.getElementById('rt').textContent=(nameVal?nameVal+' — ':'')+city+' — '+dO.getFullYear()+'年'+(dO.getMonth()+1)+'月'+dO.getDate()+'日';
     document.getElementById('rs').textContent='太陽 '+CChart.planets[0].sign.name+' · 月 '+CChart.planets[1].sign.name+(CChart.asc?' · ASC '+CChart.asc.sign.name+' ［Equal House］':'');
     if(!BTK)document.getElementById('ub').classList.add('show');
     drawChart(CChart);renderPL(CChart);renderAS(CChart);
